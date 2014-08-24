@@ -18,13 +18,11 @@ Montly reports inspection deals with (an outline for now...)
 
 Alerts deals with (an outline for now...):
 
-* Collection of alerts data using the `alm` R package[^1]
+* Collection of alerts data using the `alm` R package (& Python way of doing this as well when the client is ready)
 * Extraction of any data within alert messages
 * Collection of further altmetrics data to help understand alerts data
 * Visualizations to look for patterns
 * Statistical models to find patterns
-
-[^1]: Will show Python way of doing this as well when the client is ready.
 
 
 ## Quick start
