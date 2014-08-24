@@ -1,0 +1,58 @@
+data-quality code
+========================================================
+
+  Install `alm` if not installed already, then load package
+
+```{r}
+# install.packages("alm")
+library('alm')
+library('data.table')
+library('dplyr')
+library('stringr')
+```
+
+Read in data
+
+```{r}
+setwd("~/Google Drive/ALM Monthly Reports/")
+files <- list.files(".", pattern = ".csv")
+read_file <- function(x){
+  tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
+#   tmp <- data.frame(fread(x))
+  tmp$datafrom <- str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+  tmp
+}
+dat <- lapply(files, read_file)
+alldat <- rbind_all(dat)
+(dat2 <- tbl_df(alldat))
+```
+
+Data manipulation
+
+```{r}
+# new column with date for each row, drop other pub date columns
+# and move title to end for easier viewing
+(dat2 <- dat2 %>%
+  mutate(pubdate = published[1], title2 = title) %>%
+  select(-published, -publication_date, -title))
+
+# remove negative numbers in facebook
+(dat2 <- dat2 %>%
+  filter(facebook >= 0))
+
+# 
+dat2 %>%
+  filter(doi == '10.1371/journal.pbio.0030057') %>%
+  select(doi, datafrom, twitter)
+
+dat2 %>%
+  filter(twitter > 0) %>%
+
+```
+
+
+XXXXX
+
+```{r}
+
+```

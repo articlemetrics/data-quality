@@ -1,0 +1,44 @@
+data-quality code
+========================================================
+
+Install `alm` if not installed already, then load package
+
+```{r}
+# install.packages("alm")
+library('alm')
+library('stringr')
+library('dplyr')
+```
+
+Get alerts data
+
+```{r}
+almdat <- alm_alerts(class_name = "HtmlRatioTooHighError")
+dat <- almdat$data
+head(dat)
+parse_alert_no <- function(x, class){ 
+  ms <- x$message
+  foo <- function(x){
+    tt <- data.frame(do.call(rbind, str_extract_all(x, "[0-9]+")))
+    names(tt) <- c('high','low')
+    tt
+  }
+  tmp <- switch(class, 
+        HtmlRatioTooHighError = data.frame(ratio=as.numeric(str_extract(ms, "[0-9]+\\.?[0-9]+"))),
+        EventCountDecreasingError = foo(ms) )
+  cbind(x, tmp)
+}
+parse_alert_no(x=dat, class="HtmlRatioTooHighError")
+
+dat$alert_val <- vapply(dat, parse_alert_no, numeric(1), class='HtmlRatioTooHighError', USE.NAMES = FALSE)
+head(dat)
+```
+
+Get more alm data on dois from alerts data
+
+```{r}
+(dois <- dat$doi)
+almdata <- alm(dois)
+names(almdata) <- dois
+```
+
