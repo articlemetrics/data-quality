@@ -3,11 +3,10 @@ PLOS ALM data quality
 
 ## Info
 
-This repo holds work on data quality for altmetrics data, including:
+This repo holds work on data quality for altmetrics data, including for:
 
-* x
-* y
-* z
+* Monthly reports inspection, see `monthly`
+* Alerts inspection, see `alerts`
 
 ## Quick start
 
