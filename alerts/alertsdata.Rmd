@@ -4,10 +4,10 @@ data-quality code
 Install `alm` if not installed already, then load package
 
 ```{r}
-# install.packages("alm")
-library('alm')
+# install.packages('stringr')
+# devtools::install_github("ropensci/alm", ref="alerts")
 library('stringr')
-library('dplyr')
+library('alm')
 ```
 
 Get alerts data
