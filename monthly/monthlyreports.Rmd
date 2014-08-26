@@ -53,11 +53,7 @@ Compare each metric separately through time for the same DOIs
 ### Citeulike data
 
 ```{r}
-citeulike <- dat2 %>% select(doi, datafrom, citeulike)
-ggplot(citeulike[1:100000,], aes(datafrom, citeulike, group=doi)) +
-  geom_line()
-
-# get dois that have at least a change in their value of 1  
+# get dois that have a change in their value of at least n = 10 (modify)  
 citeu_dois <- dat2 %>% 
   select(doi, datafrom, citeulike) %>% 
   group_by(doi) %>% 
@@ -72,6 +68,27 @@ dat2 %>%
   select(doi, datafrom, citeulike) %>% 
   filter(doi %in% citeu_dois$doi) %>% 
   ggplot(aes(datafrom, citeulike, group=doi)) + geom_line()
+```
+
+### Mendeley data
+
+```{r}
+# get dois that have a change in their value of at least n = 10 (modify)
+# mendeley_dois <-
+dat2 %>% 
+  select(doi, datafrom, mendeley, mendeley_readers, mendeley_groups, mendeley.1) %>% 
+  group_by(doi) %>% 
+  summarise(
+    diff = max(mendeley) - min(mendeley)
+  ) %>% 
+  filter(diff > 10) %>% 
+  select(doi)
+
+# Visualize data
+dat2 %>% 
+  select(doi, datafrom, mendeley) %>% 
+  filter(doi %in% citeu_dois$doi) %>% 
+  ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
 ```
 
 ## Across metrics

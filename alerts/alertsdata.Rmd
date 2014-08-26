@@ -1,16 +1,24 @@
 data-quality code
 ========================================================
 
-Install `alm` if not installed already, then load package
+### Install `alm` if not installed already, then load package
 
 ```{r}
 # install.packages('stringr')
-# devtools::install_github("ropensci/alm", ref="alerts")
+# devtools::install_github("ropensci/alm", ref="dev")
 library('stringr')
 library('alm')
 ```
 
-Get alerts data
+### Credentials
+
+You need to give credentials to get alerts data. Do one of:
+
+* execute `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`, or
+* pass in directly to the `alm_alerts()` function, or
+* store in your `.Rprofile` file as `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`
+
+### Get alerts data
 
 ```{r}
 almdat <- alm_alerts(class_name = "HtmlRatioTooHighError")
@@ -34,11 +42,10 @@ dat$alert_val <- vapply(dat, parse_alert_no, numeric(1), class='HtmlRatioTooHigh
 head(dat)
 ```
 
-Get more alm data on dois from alerts data
+### Get more alm data on dois from alerts data
 
 ```{r}
 (dois <- dat$doi)
 almdata <- alm(dois)
 names(almdata) <- dois
 ```
-
