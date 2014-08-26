@@ -1,7 +1,9 @@
 data-quality code
 ========================================================
 
-Install below packages are not installed already, then load package
+## Install packages 
+
+If the below packages are not installed already, then load package
 
 ```{r}
 # install.packages(c('data.table','dplyr','stringr'))
@@ -12,7 +14,7 @@ library('stringr')
 library('alm')
 ```
 
-Read in data
+## Read in data
 
 PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin
 
@@ -29,7 +31,7 @@ alldat <- rbind_all(dat)
 (dat2 <- tbl_df(alldat))
 ```
 
-Data manipulation
+## Data manipulation
 
 ```{r}
 # new column with date for each row, drop other pub date columns
@@ -41,7 +43,13 @@ Data manipulation
 # remove negative numbers in facebook
 (dat2 <- dat2 %>%
   filter(facebook >= 0))
+```
 
+## Through time
+
+Compare each metric separately through time for the same DOIs
+
+```{r}
 # 
 dat2 %>%
   filter(doi == '10.1371/journal.pbio.0030057') %>%
@@ -49,5 +57,13 @@ dat2 %>%
 
 dat2 %>%
   filter(twitter > 0) %>%
+
+```
+
+## Across metrics
+
+Compare different metrics across the same DOIs in one time slice
+
+```{r}
 
 ```
