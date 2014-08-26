@@ -1,14 +1,14 @@
-PLOS ALM data quality
+PLOS ALM Data Quality
 =====================
 
-## Info
+This repo holds work on data quality for data from the PLOS altmetrics application, including for:
 
-This repo holds work on data quality for altmetrics data, including for:
+* Monthly reports inspection, see [monthly](monthly/)
+* Alerts inspection, see [alerts](alerts/)
 
-* Monthly reports inspection, see `monthly`
-* Alerts inspection, see `alerts`
+## Monthly reports
 
-Montly reports inspection deals with (an outline for now...)
+Montly reports inspection deals with:
 
 * loading data
 * cleaning data
@@ -16,15 +16,16 @@ Montly reports inspection deals with (an outline for now...)
 * Visualize temporal change within __the same__ doi
 * Visualize relationship among various metrics for __different__ dois
 
-Alerts deals with (an outline for now...):
+## Alerts
 
-* Collection of alerts data using the `alm` R package (& Python way of doing this as well when the client is ready)
+Alerts deals with:
+
+* Collection of alerts data using the [alm R package][almpkg] (& Python way of doing this as well when the client is ready)
 * Extraction of any data within alert messages
 * Collection of further altmetrics data to help understand alerts data
 * Visualizations to look for patterns
 * Statistical models to find patterns
 
+Alerts data is availabe usig the v4 API via R using the [alm package][almpkg]. See [the alerts folder](alerts/) for examples of its use. You will need to have role of `Staff` or `Admin` in the ALM application to get alerts data. If you are one of those, you'll need your username and password to the site.
 
-## Quick start
-
-xxx
+[almpkg]: https://github.com/ropensci/alm
