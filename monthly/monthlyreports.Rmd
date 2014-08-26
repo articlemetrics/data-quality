@@ -12,6 +12,7 @@ library('data.table')
 library('dplyr')
 library('stringr')
 library('alm')
+library('ggplot2')
 ```
 
 ## Read in data
@@ -23,7 +24,7 @@ setwd("~/Google Drive/ALM Monthly Reports/")
 files <- list.files(".", pattern = ".csv")
 read_file <- function(x){
   tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
-  tmp$datafrom <- str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+  tmp$datafrom <- as.Date(str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}"), "%Y-%m-%d")
   tmp
 }
 dat <- lapply(files, read_file)
@@ -49,15 +50,28 @@ alldat <- rbind_all(dat)
 
 Compare each metric separately through time for the same DOIs
 
+### Citeulike data
+
 ```{r}
-# 
-dat2 %>%
-  filter(doi == '10.1371/journal.pbio.0030057') %>%
-  select(doi, datafrom, twitter)
+citeulike <- dat2 %>% select(doi, datafrom, citeulike)
+ggplot(citeulike[1:100000,], aes(datafrom, citeulike, group=doi)) +
+  geom_line()
 
-dat2 %>%
-  filter(twitter > 0) %>%
+# get dois that have at least a change in their value of 1  
+citeu_dois <- dat2 %>% 
+  select(doi, datafrom, citeulike) %>% 
+  group_by(doi) %>% 
+  summarise(
+    diff = max(citeulike) - min(citeulike)
+  ) %>% 
+  filter(diff > 10) %>% 
+  select(doi)
 
+# Visualize data
+dat2 %>% 
+  select(doi, datafrom, citeulike) %>% 
+  filter(doi %in% citeu_dois$doi) %>% 
+  ggplot(aes(datafrom, citeulike, group=doi)) + geom_line()
 ```
 
 ## Across metrics
@@ -65,5 +79,5 @@ dat2 %>%
 Compare different metrics across the same DOIs in one time slice
 
 ```{r}
-
+# xxx
 ```
