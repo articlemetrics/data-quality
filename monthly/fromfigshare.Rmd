@@ -1,0 +1,3 @@
+## Montly data files from Figshare
+
+need to ask Martin about data files on Figshare...then see if we can use `rfigshare` to get those files, then some other scripts to process data, look for patterns, etc. 
