@@ -7,13 +7,14 @@ If the below packages are not installed already, then load package
 
 
 ```r
-# install.packages(c('data.table','dplyr','stringr'))
+# install.packages(c('data.table','dplyr','stringr','tidyr'))
 # devtools::install_github("ropensci/alm", ref="alerts")
 library('data.table')
 library('dplyr')
 library('stringr')
 library('alm')
 library('ggplot2')
+library('tidyr')
 ```
 
 ## Read in data
@@ -22,7 +23,7 @@ PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin
 
 
 ```r
-setwd("~/Google Drive/ALM Monthly Reports/") 
+setwd("~/Google Drive/ALM Monthly Reports/")
 files <- list.files(".", pattern = ".csv")
 read_file <- function(x){
   tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
@@ -35,7 +36,7 @@ alldat <- rbind_all(dat)
 ```
 
 ```
-## Source: local data frame [1,271,304 x 51]
+## Source: local data frame [1,271,304 x 48]
 ## 
 ##                             doi  published
 ## 1  10.1371/journal.pbio.0000001 2003-10-13
@@ -60,11 +61,10 @@ alldat <- rbind_all(dat)
 ##   (int), publication_date (chr), wikipedia (int), scienceseeker (int),
 ##   f1000 (int), figshare (int), pmceurope (int), pmceuropedata (int),
 ##   wordpress (int), reddit (int), datacite (int), articlecoveragecurated
-##   (int), articlecoverage (int), plos_comments (int), relativemetric (int),
-##   mendeley.1 (int), pmc.1 (int), counter.1 (int)
+##   (int), articlecoverage (int), plos_comments (int), relativemetric (int)
 ```
 
-## Data manipulation
+## Data cleaning
 
 
 ```r
@@ -76,7 +76,7 @@ alldat <- rbind_all(dat)
 ```
 
 ```
-## Source: local data frame [1,271,304 x 50]
+## Source: local data frame [1,271,304 x 47]
 ## 
 ##                             doi bloglines citeulike connotea crossref
 ## 1  10.1371/journal.pbio.0000001         0         0        0        9
@@ -100,8 +100,7 @@ alldat <- rbind_all(dat)
 ##   wikipedia (int), scienceseeker (int), f1000 (int), figshare (int),
 ##   pmceurope (int), pmceuropedata (int), wordpress (int), reddit (int),
 ##   datacite (int), articlecoveragecurated (int), articlecoverage (int),
-##   plos_comments (int), relativemetric (int), mendeley.1 (int), pmc.1
-##   (int), counter.1 (int), pubdate (chr), title2 (chr)
+##   plos_comments (int), relativemetric (int), pubdate (chr), title2 (chr)
 ```
 
 ```r
@@ -111,7 +110,7 @@ alldat <- rbind_all(dat)
 ```
 
 ```
-## Source: local data frame [1,271,200 x 50]
+## Source: local data frame [1,271,200 x 47]
 ## 
 ##                             doi bloglines citeulike connotea crossref
 ## 1  10.1371/journal.pbio.0000001         0         0        0        9
@@ -135,8 +134,42 @@ alldat <- rbind_all(dat)
 ##   wikipedia (int), scienceseeker (int), f1000 (int), figshare (int),
 ##   pmceurope (int), pmceuropedata (int), wordpress (int), reddit (int),
 ##   datacite (int), articlecoveragecurated (int), articlecoverage (int),
-##   plos_comments (int), relativemetric (int), mendeley.1 (int), pmc.1
-##   (int), counter.1 (int), pubdate (chr), title2 (chr)
+##   plos_comments (int), relativemetric (int), pubdate (chr), title2 (chr)
+```
+
+```r
+# remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code
+annot <- dat2 %>% filter(grepl('annotation', doi)) %>% select(doi)
+(dat2 <- dat2 %>% 
+  filter(!doi %in% annot$doi))
+```
+
+```
+## Source: local data frame [1,256,636 x 47]
+## 
+##                             doi bloglines citeulike connotea crossref
+## 1  10.1371/journal.pbio.0000001         0         0        0        9
+## 2  10.1371/journal.pbio.0000002         0         4        0       83
+## 3  10.1371/journal.pbio.0000003         0         0        0        0
+## 4  10.1371/journal.pbio.0000004         0         0        0        0
+## 5  10.1371/journal.pbio.0000005         0        10        6      316
+## 6  10.1371/journal.pbio.0000006         0         0        0       15
+## 7  10.1371/journal.pbio.0000007         0         2        0        0
+## 8  10.1371/journal.pbio.0000008         0         0        0        6
+## 9  10.1371/journal.pbio.0000009         0         1        0        1
+## 10 10.1371/journal.pbio.0000010         0        14        2      116
+## ..                          ...       ...       ...      ...      ...
+## Variables not shown: nature (int), postgenomic (int), pubmed (int),
+##   researchblogging (int), scopus (int), twitter (int), counter_html (int),
+##   counter_pdf (int), counter_xml (int), pmc_html (int), pmc_pdf (int),
+##   facebook (int), mendeley_readers (int), mendeley_groups (int), comments
+##   (int), comment_replies (int), notes (int), note_replies (int), ratings
+##   (int), avg_rating (dbl), rating_comments (int), trackbacks (int),
+##   datafrom (date), biod (int), counter (int), pmc (int), mendeley (int),
+##   wikipedia (int), scienceseeker (int), f1000 (int), figshare (int),
+##   pmceurope (int), pmceuropedata (int), wordpress (int), reddit (int),
+##   datacite (int), articlecoveragecurated (int), articlecoverage (int),
+##   plos_comments (int), relativemetric (int), pubdate (chr), title2 (chr)
 ```
 
 ## Through time
@@ -147,15 +180,7 @@ Compare each metric separately through time for the same DOIs
 
 
 ```r
-citeulike <- dat2 %>% select(doi, datafrom, citeulike)
-ggplot(citeulike[1:100000,], aes(datafrom, citeulike, group=doi)) +
-  geom_line()
-```
-
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-41.png) 
-
-```r
-# get dois that have at least a change in their value of 1  
+# get dois that have a change in their value of at least n = 10 (modify)  
 citeu_dois <- dat2 %>% 
   select(doi, datafrom, citeulike) %>% 
   group_by(doi) %>% 
@@ -172,7 +197,34 @@ dat2 %>%
   ggplot(aes(datafrom, citeulike, group=doi)) + geom_line()
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-42.png) 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+### Mendeley data
+
+
+```r
+# get dois that have a change in their value of at least n = 10 (modify)
+mendeley_dois <-  dat2 %>% 
+  select(doi, datafrom, mendeley) %>%
+  group_by(doi) %>% 
+  summarise(
+    diff = max(mendeley, na.rm = TRUE) - min(mendeley, na.rm = TRUE)
+  ) %>% 
+  filter(diff > 90) %>%
+  select(doi)
+
+# Visualize data
+dat2 %>%
+  select(doi, datafrom, mendeley) %>%
+  filter(doi %in% mendeley_dois$doi) %>% 
+  ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
+```
+
+```
+## Warning: Removed 1162 rows containing missing values (geom_path).
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 ## Across metrics
 
@@ -180,5 +232,15 @@ Compare different metrics across the same DOIs in one time slice
 
 
 ```r
-# xxx
+# remove last three dates as they don't have counter_pdf or counter_html data
+dat2 %>% 
+  select(doi, datafrom, contains('counter')) %>% 
+  filter(!as.character(datafrom) %in% c('2014-06-10','2014-07-10',"2014-08-10")) %>%
+  ggplot(aes(log10(counter_html+1), log10(counter_pdf+1))) + geom_point() + facet_wrap(~ datafrom)
 ```
+
+```
+## Warning: Removed 4 rows containing missing values (geom_point).
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
