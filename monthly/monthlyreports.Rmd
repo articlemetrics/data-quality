@@ -18,7 +18,7 @@ library('tidyr')
 
 ## Read in data
 
-PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin
+PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin if you want access
 
 ```{r}
 setwd("~/Google Drive/ALM Monthly Reports/")
