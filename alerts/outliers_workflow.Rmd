@@ -1,0 +1,16 @@
+Workflow for detecting and exploring just outliers
+========================================================
+
+### Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd'}
+```
+
+### Get alerts data
+
+```{r}
+
+```
+
