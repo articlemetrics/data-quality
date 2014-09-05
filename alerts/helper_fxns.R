@@ -42,20 +42,3 @@ parser <- function(class, mssg){
     )
   } else { data.frame(val=NA, stringsAsFactors = FALSE) }
 }
-
-
-#     `Net::HTTPRequestTimeOut` = NA,
-#     `Delayed::WorkerTimeout` = NA,
-#     DelayedJobError = NA,
-#     `Net::HTTPConflict` = NA,
-#     `Net::HTTPUnauthorized` = NA,
-#     `Net::HTTPRequestTimeOut` = NA,
-#     `Delayed::WorkerTimeout` = NA,
-#     `Net::HTTPServiceUnavailable` = NA,
-#     `Faraday::ResourceNotFound` = NA,
-#     `ActiveRecord::RecordInvalid` = NA,
-#     TooManyErrorsBySourceError = NA,
-#     `SourceInactiveError` = NA,
-#     `TooManyWorkersError` = NA,
-#     ApiResponseTooSlowError = NA,
-#     CitationMilestoneAlert = NA

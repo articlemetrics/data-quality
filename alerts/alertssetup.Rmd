@@ -1,0 +1,13 @@
+Install `alm` if not installed already, then load package
+
+```{r message=FALSE}
+# source helper fxns
+source("helper_fxns.R")
+
+# install.packages('stringr')
+# devtools::install_github("ropensci/alm", ref="dev")
+library('stringr')
+library('alm')
+library('plyr')
+library('dplyr')
+```

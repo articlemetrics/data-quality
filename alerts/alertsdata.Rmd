@@ -1,18 +1,11 @@
 data-quality code
 ========================================================
 
-### Install `alm` if not installed already, then load package
+### Setup
 
-```{r}
-# source helper fxns
-source("alerts/helper_fxns.R")
+> change directory to /data-quality/alerts/
 
-# install.packages('stringr')
-# devtools::install_github("ropensci/alm", ref="dev")
-library('stringr')
-library('alm')
-library('plyr')
-library('dplyr')
+```{r child='alertssetup.Rmd'}
 ```
 
 ### Credentials
