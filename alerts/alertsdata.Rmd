@@ -4,10 +4,15 @@ data-quality code
 ### Install `alm` if not installed already, then load package
 
 ```{r}
+# source helper fxns
+source("alerts/helper_fxns.R")
+
 # install.packages('stringr')
 # devtools::install_github("ropensci/alm", ref="dev")
 library('stringr')
 library('alm')
+library('plyr')
+library('dplyr')
 ```
 
 ### Credentials
@@ -22,53 +27,76 @@ You need to give credentials to get alerts data. Do one of:
 
 
 ```{r}
-# Possible alerts types
-alert_types()
+# Possible alerts classes
+alert_classes()
 
-# Search for alm alerts
-almdat <- alm_alerts(class_name = "EventCountIncreasingTooFastError")
-dat <- almdat$data
-head(dat)
-parse_alert_mssg <- function(x, class){
-  ms <- x$message
-  foo <- function(x){
-    tt <- data.frame(do.call(rbind, str_extract_all(x, "[0-9]+")))
-    names(tt) <- c('high','low')
-    tt
-  }
-  bar <- function(y) as.numeric(vapply(y, str_extract, character(1), pattern="[0-9]+", USE.NAMES = FALSE))
-  
-  tmp <- switch(class, 
-    HtmlRatioTooHighError = data.frame(ratio=as.numeric(str_extract(ms, "[0-9]+\\.?[0-9]+"))),
-    EventCountDecreasingError = foo(ms),
-    EventCountIncreasingTooFastError = bar(ms),
-    ArticleNotUpdatedError = bar(ms),
-    `Net::HTTPRequestTimeOut` = NA,
-    `Delayed::WorkerTimeout` = NA,
-    DelayedJobError = NA,
-    `Net::HTTPConflict` = NA,
-    `Net::HTTPUnauthorized` = NA,
-    `Net::HTTPRequestTimeOut` = NA,
-    `Delayed::WorkerTimeout` = NA,
-    `Net::HTTPServiceUnavailable` = NA,
-    `Faraday::ResourceNotFound` = NA,
-    `ActiveRecord::RecordInvalid` = NA,
-    TooManyErrorsBySourceError = NA,
-    `SourceInactiveError` = NA,
-    `TooManyWorkersError` = NA,
-    ApiResponseTooSlowError = NA,
-    CitationMilestoneAlert = NA
-  )
-  cbind(x, tmp)
-}
-dat <- parse_alert_mssg(x=dat, class="EventCountIncreasingTooFastError")
+# Get a bunch of alerts data, using the page parameter
+# Note that the per_page parameter is hard coded to 50 on the server, so avoid that parameter
+almdat <- rbind.fill(lapply(1:30, function(x) alm_alerts(page=x)$data))
+NROW(almdat)
+head(almdat)
+unique(almdat$class_name)
+
+# Pass the output to alerts_parse to parse out useful data from error messages
+dat <- alerts_parse(almdat)
 head(dat)
 ```
 
-### Get more alm data on dois from alerts data
+### Get alm data on dois from alerts data
+
+ALM summary data
 
 ```{r}
-(dois <- dat$doi)
-almdata <- alm(dois)
-names(almdata) <- dois
+(dois <- dat$article) # some dois may be NA
 ```
+
+```{r}
+almdata <- alm_ids(na.omit(dois[1:200]))
+almdata2 <- almdata$data
+names(almdata2) <- as.character(na.omit(dois[1:200]))
+```
+
+ALM events data
+
+```{r}
+eventsdat <- alm_events(na.omit(dois[1:200]))
+names(eventsdat) <- as.character(na.omit(dois[1:200]))
+```
+
+Looking at class `EventCountDecreasingError`
+
+```{r}
+tmp <- tbl_df(dat) %>%
+  filter(class_name == 'EventCountDecreasingError') %>%
+  select(source, article, high, low) %>%
+  filter(as.numeric(high) - as.numeric(low) > 6)
+
+# pass those DOIS of difference btw high and low > 10
+tmp$article
+```
+
+
+### Investigate individual DOIs
+
+* one with very high HTML views number [http://alm.plos.org/articles/info:doi/10.1371/journal.pone.0033693]()
+
+> Sadasivan S, Pond BB, Pani AK, Qu C, Jiao Y, et al. (2012) Methylphenidate Exposure Induces Dopamine Neuron Loss and Activation of Microglia in the Basal Ganglia of Mice. PLoS ONE 7(3): e33693. doi:10.1371/journal.pone.0033693
+
+```{r}
+doi <- '10.1371/journal.pone.0033693'
+alm_alerts(ids = doi)
+
+res <- alm_ids(doi, info = "detail")
+
+res <- alm_events(doi)
+names(res)
+res$
+```
+
+
+### With crossref
+
+```{r}
+alm_alerts(url = "http://det.labs.crossref.org/api/v4/alerts", user = "schamber@rice.edu", pwd = "IWLMNQmYan7TAk6t")
+```
+
