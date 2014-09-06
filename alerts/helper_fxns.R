@@ -42,3 +42,15 @@ parser <- function(class, mssg){
     )
   } else { data.frame(val=NA, stringsAsFactors = FALSE) }
 }
+
+alerts_by_class <- function(class_name=NULL, limit=NULL){
+  assert_that(!is.null(class_name))
+  num_res <- alm_alerts(class_name = class_name)$meta$total
+  if(!is.null(limit)) num_res <- min(c(num_res, limit))
+  pgs <- 1:(round_any(num_res, 50, ceiling)/50)
+  xx <- rbind.fill(lapply(pgs, function(x) alm_alerts(page=x, class_name = class_name)$data))
+  xx <- alerts_parse(xx)
+  tbl_df(xx) %>%
+    select(id, article, val, create_date, source) %>%
+    arrange(desc(val))
+}

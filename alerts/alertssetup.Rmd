@@ -10,4 +10,5 @@ library('stringr')
 library('alm')
 library('plyr')
 library('dplyr')
+library('assertthat')
 ```

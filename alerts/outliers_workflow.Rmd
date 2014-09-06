@@ -8,9 +8,11 @@ Workflow for detecting and exploring just outliers
 ```{r child='alertssetup.Rmd'}
 ```
 
-### Get alerts data
+### Get alerts data by alert class
+
+#### HtmlRatioTooHighError
 
 ```{r}
-
+(res <- alerts_by_class('HtmlRatioTooHighError'))
 ```
 
