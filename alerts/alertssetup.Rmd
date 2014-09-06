@@ -10,5 +10,7 @@ library('stringr')
 library('alm')
 library('plyr')
 library('dplyr')
+library('tidyr')
 library('assertthat')
+library('ggplot2')
 ```

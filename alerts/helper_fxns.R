@@ -50,7 +50,17 @@ alerts_by_class <- function(class_name=NULL, limit=NULL){
   pgs <- 1:(round_any(num_res, 50, ceiling)/50)
   xx <- rbind.fill(lapply(pgs, function(x) alm_alerts(page=x, class_name = class_name)$data))
   xx <- alerts_parse(xx)
+  xx <- xx[ !duplicated(xx[,!names(xx) %in% c('id','create_date',"unresolved")]) , ]
   tbl_df(xx) %>%
     select(id, article, val, create_date, source) %>%
     arrange(desc(val))
+}
+
+clean_events <- function(x){
+  tmp <- lapply(x, function(y){
+    if(is.character(y)){
+      if(y == "sorry, no events content yet") NULL else y 
+    } else { y }
+  })
+  compact(tmp)
 }

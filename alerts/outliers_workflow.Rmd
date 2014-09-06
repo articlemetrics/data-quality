@@ -12,7 +12,44 @@ Workflow for detecting and exploring just outliers
 
 #### HtmlRatioTooHighError
 
+Get data
+
 ```{r}
-(res <- alerts_by_class('HtmlRatioTooHighError'))
+(res <- alerts_by_class(class_name = 'HtmlRatioTooHighError'))
 ```
 
+Extract top 10, get DOIs
+
+```{r}
+toinspect <- res[1:10,]
+dois <- toinspect$article
+```
+
+Get ALM events data and merge alerts data to it
+
+```{r}
+deets <- alm_ids(dois, info = "detail")
+details <- deets$data
+events <- alm_events(dois, source = "counter")
+foo <- function(x, y){
+  tmp <- x$counter$events
+  data.frame(article=y, tmp, stringsAsFactors = FALSE)
+}
+events <- Map(foo, events, dois)
+eventsdf <- tbl_df(rbind_all(events))
+alldf <- inner_join(x=eventsdf, y=toinspect)
+alldf <- alldf %>% 
+    mutate(date = as.Date(sprintf('%s-%s-01', year, month)))
+```
+
+Plot data
+
+```{r fig.width=10}
+alldf %>%
+  select(-year, -month, -id, -val, -create_date, -source) %>%
+  gather(metric, value, -article, -date) %>%
+  ggplot(aes(date, value, color=metric)) + 
+    geom_line() + 
+    facet_wrap(~ article, ncol = 2, scales = "free") +
+    ggtitle("Top ten highest HTML/PDF ratio articles - HtmlRatioTooHighError\n")
+```

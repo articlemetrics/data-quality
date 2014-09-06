@@ -25,7 +25,7 @@ alert_classes()
 
 # Get a bunch of alerts data, using the page parameter
 # Note that the per_page parameter is hard coded to 50 on the server, so avoid that parameter
-almdat <- rbind.fill(lapply(1:30, function(x) alm_alerts(page=x)$data))
+almdat <- rbind.fill(lapply(1:30, function(x) alm_alerts(page=x, class_name = 'HtmlRatioTooHighError')$data))
 NROW(almdat)
 head(almdat)
 unique(almdat$class_name)
