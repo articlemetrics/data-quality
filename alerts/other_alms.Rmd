@@ -32,3 +32,6 @@ res <- alm_alerts(url = url, user = user, pwd = pwd)
 head(res$data)
 ```
 
+### Other sources
+
+I'll add exmaples of working with other data sources as they come online. E.g., eLife and PKP are using the ALM app, but are using an older version that doesn't support the alerts data.
