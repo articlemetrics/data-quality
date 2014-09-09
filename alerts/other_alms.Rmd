@@ -1,0 +1,37 @@
+other ALM sources
+========================================================
+
+### Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd'}
+```
+
+### Credentials
+
+You need to give credentials to get alerts data. Do one of:
+
+* execute `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`, or
+* pass in directly to the `alm_alerts()` function, or
+* store in your `.Rprofile` file as `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`
+
+### Crossref ALM
+
+```{r}
+url <- "http://det.labs.crossref.org/api/v4/alerts"
+user <- "myrmecocystus@gmail.com"
+pwd <- "glok2ill4ilt7eang6yelm"
+alm_alerts(url = url, user = user, pwd = pwd)
+```
+
+
+### PLOS Labs ALM
+
+```{r}
+url <- "http://labs.crowdometer.org/api/v4/alerts"
+user <- "myrmecocystus@gmail.com"
+pwd <- "nud1vun2err2il5ond2eed"
+alm_alerts(url = url, user = user, pwd = pwd)
+```
+

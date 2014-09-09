@@ -85,11 +85,3 @@ res <- alm_events(doi)
 names(res)
 res$
 ```
-
-
-### With crossref
-
-```{r}
-alm_alerts(url = "http://det.labs.crossref.org/api/v4/alerts", user = "schamber@rice.edu", pwd = "IWLMNQmYan7TAk6t")
-```
-
