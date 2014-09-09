@@ -10,28 +10,23 @@ other ALM sources
 
 ### Credentials
 
-You need to give credentials to get alerts data. Do one of:
-
-* execute `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`, or
-* pass in directly to the `alm_alerts()` function, or
-* store in your `.Rprofile` file as `options(almv4_user='<your user name>')` and `options(almv4_pwd='<your password>')`
+You need to give credentials to get alerts data. Make sure to input your own username and password for `user` and `pwd` variables in your `.Rprofile` file, or pass in to the function call itself. `alm_alerts()` looks for `almv4_user` and `almv4_pwd` by default, but those are meant to go with the main PLOS ALM server at `plos.alm.org`. So you can store your username and password in `.Rrofile`, but just call it in via `getOption()` in your script passin to `alm_alerts()`.
 
 ### Crossref ALM
 
 ```{r}
 url <- "http://det.labs.crossref.org/api/v4/alerts"
-user <- "myrmecocystus@gmail.com"
-pwd <- "glok2ill4ilt7eang6yelm"
+user <- getOption('almv4_crossref_user')
+pwd <- getOption('almv4_crossref_pwd')
 alm_alerts(url = url, user = user, pwd = pwd)
 ```
-
 
 ### PLOS Labs ALM
 
 ```{r}
 url <- "http://labs.crowdometer.org/api/v4/alerts"
-user <- "myrmecocystus@gmail.com"
-pwd <- "nud1vun2err2il5ond2eed"
+user <- getOption('almv4_ploslabs_user')
+pwd <- getOption('almv4_ploslabs_pwd')
 alm_alerts(url = url, user = user, pwd = pwd)
 ```
 
