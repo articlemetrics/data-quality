@@ -18,38 +18,56 @@ Get data
 (res <- alerts_by_class(class_name = 'HtmlRatioTooHighError'))
 ```
 
-Extract top 10, get DOIs
+Extract top N articles, get DOIs
 
 ```{r}
-toinspect <- res[1:10,]
-dois <- toinspect$article
+toinspect <- res[1:20,]
+(dois <- toinspect$article)
 ```
 
 Get ALM events data and merge alerts data to it
 
 ```{r}
-deets <- alm_ids(dois, info = "detail")
-details <- deets$data
+# deets <- alm_ids(dois, info = "detail")
+# details <- deets$data
 events <- alm_events(dois, source = "counter")
+# lapply(events, function(x) data.frame(article=, x$counter$event))
 foo <- function(x, y){
   tmp <- x$counter$events
   data.frame(article=y, tmp, stringsAsFactors = FALSE)
 }
-events <- Map(foo, events, dois)
+events <- Map(foo, events, names(events))
 eventsdf <- tbl_df(rbind_all(events))
 alldf <- inner_join(x=eventsdf, y=toinspect)
 alldf <- alldf %>% 
     mutate(date = as.Date(sprintf('%s-%s-01', year, month)))
 ```
 
-Plot data
+Plot data, top 10 DOIs
 
 ```{r fig.width=10}
 alldf %>%
   select(-year, -month, -id, -val, -create_date, -source) %>%
   gather(metric, value, -article, -date) %>%
+  arrange() %>%
   ggplot(aes(date, value, color=metric)) + 
-    geom_line() + 
+    geom_line(size = 2, alpha = 0.7) + 
     facet_wrap(~ article, ncol = 2, scales = "free") +
     ggtitle("Top ten highest HTML/PDF ratio articles - HtmlRatioTooHighError\n")
 ```
+
+Dig in to particular DOIs. This is rather free-form, depends on the metric of interest.
+
+```{r eval=FALSE}
+doi1 <- '10.1371/journal.pbio.0040066'
+alm_events(doi1, source = "facebook")
+alm_ids(doi1, info = "detail")
+```
+
+Detect spikes
+
+```{r}
+'....'
+```
+
+> based on the above work, identify which articles are deserving of further inspection/flagging - perhaps need to look at log files for IP addresses, etc.
