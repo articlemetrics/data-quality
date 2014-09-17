@@ -1,0 +1,7 @@
+#### Exploring Mendeley data
+
+Get data
+
+```{r}
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=2000))
+```

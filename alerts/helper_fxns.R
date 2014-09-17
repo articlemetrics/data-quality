@@ -25,9 +25,8 @@ alerts_parse <- function(x){
 }
 
 foo <- function(x){
-  tt <- data.frame(do.call(rbind, str_extract_all(x, "[0-9]+")))
-  names(tt) <- c('high','low')
-  tt
+  tt <- as.numeric(str_extract_all(x, "[0-9]+")[[1]])
+  data.frame(val=tt[1] - tt[2], stringsAsFactors = FALSE)
 }
 
 bar <- function(y) data.frame(val=as.numeric(vapply(y, str_extract, character(1), pattern="[0-9]+", USE.NAMES = FALSE)), stringsAsFactors = FALSE)
@@ -47,13 +46,16 @@ alerts_by_class <- function(class_name=NULL, limit=NULL){
   assert_that(!is.null(class_name))
   num_res <- alm_alerts(class_name = class_name)$meta$total
   if(!is.null(limit)) num_res <- min(c(num_res, limit))
-  pgs <- 1:(round_any(num_res, 50, ceiling)/50)
-  xx <- rbind.fill(lapply(pgs, function(x) alm_alerts(page=x, class_name = class_name)$data))
-  xx <- alerts_parse(xx)
-  xx <- xx[ !duplicated(xx[,!names(xx) %in% c('id','create_date',"unresolved")]) , ]
-  tbl_df(xx) %>%
-    select(id, article, val, create_date, source) %>%
-    arrange(desc(val))
+  if(!num_res == 0){
+    pgs <- 1:(round_any(num_res, 50, ceiling)/50)
+    xx <- rbind.fill(lapply(pgs, function(x) alm_alerts(page=x, class_name = class_name)$data))
+    xx <- alerts_parse(xx)
+    xx <- xx[ !duplicated(xx[,!names(xx) %in% c('id','create_date',"unresolved")]) , ]
+    tbl_df(xx) %>%
+      select(id, article, val, create_date, source) %>%
+      arrange(desc(val)) %>%
+      mutate(class = class_name)
+  } else { tbl_df(data.frame(NULL)) }
 }
 
 clean_events <- function(x){

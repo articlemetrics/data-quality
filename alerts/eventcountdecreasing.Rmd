@@ -1,47 +1,25 @@
-Workflow for detecting and exploring just outliers
-========================================================
-
-### Setup
-
-> change directory to /data-quality/alerts/
-
-```{r child='alertssetup.Rmd'}
-```
-
-### Get alerts data by alert class
-
-#### get data cached for three impt alert classes
-
-```{r eval=FALSE}
-classes <- c('HtmlRatioTooHighError','EventCountDecreasingError', 'EventCountIncreasingTooFastError')
-res <- lapply(classes, alerts_by_class, limit=1000)
-(resdf <- tbl_df(rbind_all(res)))
-```
-
-
-#### By class, change class_name var at top
-
-```{r}
-class_name = 'EventCountDecreasingError'
-```
+#### EventCountDecreasingError
 
 Get data
 
 ```{r}
-(res <- alerts_by_class(class_name, limit=2000))
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=2000))
 ```
 
 Extract top N articles, get DOIs
 
 ```{r}
-toinspect <- res[1:10,] %>% select(-class)
+get <- 1:10
+toinspect <- res[get,] %>% select(-class)
 (dois <- toinspect$article)
 ```
 
 Get ALM events data and merge alerts data to it
 
 ```{r}
-events <- alm_events(dois, source = "counter")
+idsdata <- alm_ids(dois, source = unique(res[get,"source"]))
+
+events <- alm_events(dois, source = unique(res[get,"source"]))
 foo <- function(x, y){
   tmp <- x$counter$events
   data.frame(article=y, tmp, stringsAsFactors = FALSE)
@@ -92,12 +70,3 @@ datdf %>%
     theme_grey(base_size = 18) +
     theme(legend.position="none")
 ```
-
-
-Detect spikes
-
-```{r}
-'....'
-```
-
-> based on the above work, identify which articles are deserving of further inspection/flagging - perhaps need to look at log files for IP addresses, etc.
