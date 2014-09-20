@@ -22,9 +22,11 @@ res <- alm_alerts(url = url, user = user, pwd = pwd)
 head(res$data)
 ```
 
-### PLOS Labs ALM
+### Labs ALM
 
-```{r}
+> Note: as of 2014-09-20 this ALM server is down
+
+```{r eval=FALSE} 
 url <- "http://labs.crowdometer.org/api/v4/alerts"
 user <- getOption('almv4_ploslabs_user')
 pwd <- getOption('almv4_ploslabs_pwd')
