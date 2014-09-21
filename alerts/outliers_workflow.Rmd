@@ -8,6 +8,12 @@ Workflow for detecting and exploring just outliers
 ```{r child='alertssetup.Rmd'}
 ```
 
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
 ### Get alerts data by alert class
 
 #### get data cached for three impt alert classes
@@ -34,39 +40,58 @@ Get data
 Extract top N articles, get DOIs
 
 ```{r}
-toinspect <- res[1:20,] %>% select(-class)
+num_get <- 20
+toinspect <- res[1:num_get,] %>% select(-class)
 (dois <- toinspect$article)
 ```
 
 Get ALM events data and merge alerts data to it
 
 ```{r}
-events <- alm_events(dois, source = "counter")
-foo <- function(x, y){
-  tmp <- x$counter$events
-  data.frame(article=y, tmp, stringsAsFactors = FALSE)
-}
-events <- Map(foo, events, names(events))
-eventsdf <- tbl_df(rbind_all(events))
-alldf <- inner_join(x=eventsdf, y=toinspect)
-alldf <- alldf %>% 
-    mutate(date = as.Date(sprintf('%s-%s-01', year, month))) 
-alldf$create_date <- as.Date(ymd_hms(alldf$create_date))
+alldf <- add_events_data(toinspect, dois)
 ```
 
-Plot data, top 10 DOIs
+ggplot elements to reuse
+
+```{r}
+gg <- function(){
+  list(geom_line(size = 2),
+       geom_vline(aes(xintercept=as.numeric(create_date)), linetype="longdash"),
+       ggtitle("HtmlRatioTooHighError - Top ten highest HTML/PDF ratio articles\n"),
+       facet_wrap(~ article, ncol = 2, scales = "free"),
+       labs(y="", x=""),
+       theme_grey(base_size = 14))
+}
+```
+
+Plot html and pdf views, just top `r numget`
 
 ```{r fig.width=10}
 alldf %>%
-  select(-year, -month, -id, -val, -source, -xml_views) %>%
-  gather(metric, value, -article, -date, -create_date) %>%
-#   arrange() %>%
-  ggplot(aes(date, value, color=metric)) + 
-    geom_line(size = 2, alpha = 0.7) + 
-    geom_vline(aes(xintercept=as.numeric(create_date)), linetype="longdash") +
-    facet_wrap(~ article, ncol = 2, scales = "free") +
-    ggtitle("HtmlRatioTooHighError - Top ten highest HTML/PDF ratio articles\n") + 
-    labs(y="", x="") + theme_grey(base_size = 14)
+  select(-year, -month, -id, -val, -source, -xml_views, -ratio) %>%
+  gather(metric, value, -article, -date, -create_date) %>% 
+  ggplot(aes(date, value, color=metric)) + gg()
+```
+
+The HTML/PDF ratio, just top `r numget`
+
+```{r fig.width=10}
+alldf %>%
+  select(-year, -month, -id, -val, -source, -xml_views, -html_views, -pdf_views) %>%
+  ggplot(aes(date, ratio)) + gg()
+```
+
+All ratio lines together, all `r NROW(res)`
+
+```{r fig.width=10}
+(alldf_alldois <- add_events_data(res, res$article))
+
+alldf_alldois %>%
+  select(article, date, create_date, ratio) %>%
+  ggplot(aes(date, log10(ratio), group=article)) + 
+    geom_line() +
+    labs(y="", x="") +
+    theme_grey(base_size = 14)
 ```
 
 Dig in to particular DOIs. This is rather free-form, depends on the metric of interest.
@@ -80,9 +105,9 @@ alm_ids(doi1, info = "detail")
 Are the high value offender DOIs associated with other alm metrics, like social media metrics
 
 ```{r}
-dat <- alm_ids(res$article[1:100], source = c("facebook","twitter"))
+dat <- alm_ids(res$article[1:50], source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
 datdf <- rbind_all(dat$data)
-datdf$article <- rep(res$article[1:100], each = 2)
+datdf$article <- rep(res$article[1:50], each = 6)
 datdf <- inner_join(datdf, res %>% filter(article %in% res$article[1:20]) %>% select(article, val) )
 
 datdf %>% 
@@ -95,9 +120,9 @@ datdf %>%
 ```
 
 
-Detect spikes
+Detect spikes/patterns in signals through time
 
-```{r}
+```{r eval=FALSE}
 '....'
 ```
 

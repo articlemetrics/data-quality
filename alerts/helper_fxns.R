@@ -69,3 +69,24 @@ clean_events <- function(x){
   })
   compact(tmp)
 }
+
+add_events_data <- function(dat, x){
+  events <- alm_events(x, source = "counter")
+  foo <- function(x, y){
+    tmp <- x$counter$events
+    data.frame(article=y, tmp, stringsAsFactors = FALSE)
+  }
+  events <- Map(foo, events, names(events))
+  eventsdf <- tbl_df(rbind_all(events))
+  tmpdf <- inner_join(x=eventsdf, y=dat)
+  tmpdf <- tmpdf %>% 
+    mutate(date = as.Date(sprintf('%s-%s-01', year, month)), ratio = htmlpdfr(html_views, pdf_views))
+  tmpdf$create_date <- as.Date(ymd_hms(tmpdf$create_date))
+  tmpdf
+}
+
+htmlpdfr <- function(x, y){
+  x <- ifelse(x == 0, 1, x)
+  y <- ifelse(y == 0, 1, y)
+  x/y
+}
