@@ -1,7 +1,26 @@
 #### Exploring Mendeley data
 
+Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
 Get data
 
-```{r}
+```{r alertsdata}
 (res <- alerts_by_class(class_name='EventCountDecreasingError', limit=2000))
 ```
+
+Get events data
+
+```{r eventsdata}
+dat <- alm_ids(res$article[1:5], source = "mendeley", info = "detail")
+events <- alm_events(res$article[1:5], source = "mendeley")
+```
+
+
