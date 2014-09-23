@@ -6,6 +6,7 @@ data-quality code
 If the below packages are not installed already, then load package
 
 ```{r}
+options(stringsAsFactors = FALSE)
 # install.packages(c('dplyr','stringr','tidyr'))
 # devtools::install_github("ropensci/alm", ref="alerts")
 library('dplyr')
@@ -106,9 +107,11 @@ dat2 %>%
 
 ## Across metrics
 
+### Counter: html vs. pdf views
+
 Compare different metrics across the same DOIs in one time slice
 
-```{r}
+```{r cache=TRUE}
 # remove last three dates as they don't have counter_pdf or counter_html data
 norecent_counter <- dat2 %>% 
   select(doi, datafrom, contains('counter')) %>% 
@@ -128,10 +131,10 @@ Do slopes through time differ?
 # calculate slopes, define function to get slope and confidence interval first
 get_coef <- function(x){
   tmp <- lm(counter_pdf ~ counter_html, data = x)
-  df <- data.frame(datafrom=x$datafrom[1], slope=coefficients(tmp)[['counter_html']], t(confint(tmp)[2,]), stringsAsFactors = FALSE)
+  df <- data.frame(datafrom=x$datafrom[1], slope=coefficients(tmp)[['counter_html']], t(confint(tmp)[2,]))
   names(df)[3:4] <- c('low','high')
   df
-  }
+}
 
 res <- norecent_counter %>% 
   group_by(datafrom) %>%
