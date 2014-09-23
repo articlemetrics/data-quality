@@ -2,7 +2,7 @@
 
 Setup
 
-> change directory to /data-quality/alerts/
+> change directory to data-quality/alerts/
 
 ```{r child='alertssetup.Rmd', eval=FALSE}
 knitr::purl("alertssetup.Rmd")
@@ -13,13 +13,29 @@ unlink("alertssetup.R")
 Get data
 
 ```{r alertsdata}
-(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=2000))
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=10000L))
 ```
 
-Get events data
+Data cleaning
+
+remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code
+
+```{r}
+annot <- res %>% filter(grepl('annotation', article)) %>% select(article)
+(res <- res %>% filter(!article %in% annot$doi))
+```
+
+Get detailed alm data
+
+```{r almdata}
+dat <- alm_ids(res$article, source = "mendeley", info = "detail")
+(info <- rbind_all(lapply(dat$data, "[[", "info")))
+(totals <- ldply(dat$data, function(x) x$totals[,-1]))
+```
+
+Get detailed events data
 
 ```{r eventsdata}
-dat <- alm_ids(res$article[1:5], source = "mendeley", info = "detail")
 events <- alm_events(res$article[1:5], source = "mendeley")
 ```
 
