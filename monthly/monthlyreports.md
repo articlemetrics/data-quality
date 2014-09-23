@@ -7,9 +7,8 @@ If the below packages are not installed already, then load package
 
 
 ```r
-# install.packages(c('data.table','dplyr','stringr','tidyr'))
+# install.packages(c('dplyr','stringr','tidyr'))
 # devtools::install_github("ropensci/alm", ref="alerts")
-library('data.table')
 library('dplyr')
 library('stringr')
 library('alm')
@@ -19,24 +18,25 @@ library('tidyr')
 
 ## Read in data
 
-PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin
+PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin if you want access
 
 
 ```r
+dir <- getwd()
 setwd("~/Google Drive/ALM Monthly Reports/")
 files <- list.files(".", pattern = ".csv")
 read_file <- function(x){
   tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
   tmp$datafrom <- as.Date(str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}"), "%Y-%m-%d")
   tmp
-}
+  }
 dat <- lapply(files, read_file)
 alldat <- rbind_all(dat)
 (dat2 <- tbl_df(alldat))
 ```
 
 ```
-## Source: local data frame [1,271,304 x 48]
+## Source: local data frame [1,403,224 x 48]
 ## 
 ##                             doi  published
 ## 1  10.1371/journal.pbio.0000001 2003-10-13
@@ -64,6 +64,10 @@ alldat <- rbind_all(dat)
 ##   (int), articlecoverage (int), plos_comments (int), relativemetric (int)
 ```
 
+```r
+setwd(dir)
+```
+
 ## Data cleaning
 
 
@@ -71,12 +75,12 @@ alldat <- rbind_all(dat)
 # new column with date for each row, drop other pub date columns
 # and move title to end for easier viewing
 (dat2 <- dat2 %>%
-  mutate(pubdate = published[1], title2 = title) %>%
-  select(-published, -publication_date, -title))
+   mutate(pubdate = published[1], title2 = title) %>%
+   select(-published, -publication_date, -title))
 ```
 
 ```
-## Source: local data frame [1,271,304 x 47]
+## Source: local data frame [1,403,224 x 47]
 ## 
 ##                             doi bloglines citeulike connotea crossref
 ## 1  10.1371/journal.pbio.0000001         0         0        0        9
@@ -106,11 +110,11 @@ alldat <- rbind_all(dat)
 ```r
 # remove negative numbers in facebook
 (dat2 <- dat2 %>%
-  filter(facebook >= 0))
+   filter(facebook >= 0))
 ```
 
 ```
-## Source: local data frame [1,271,200 x 47]
+## Source: local data frame [1,403,120 x 47]
 ## 
 ##                             doi bloglines citeulike connotea crossref
 ## 1  10.1371/journal.pbio.0000001         0         0        0        9
@@ -141,11 +145,11 @@ alldat <- rbind_all(dat)
 # remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code
 annot <- dat2 %>% filter(grepl('annotation', doi)) %>% select(doi)
 (dat2 <- dat2 %>% 
-  filter(!doi %in% annot$doi))
+   filter(!doi %in% annot$doi))
 ```
 
 ```
-## Source: local data frame [1,256,636 x 47]
+## Source: local data frame [1,384,915 x 47]
 ## 
 ##                             doi bloglines citeulike connotea crossref
 ## 1  10.1371/journal.pbio.0000001         0         0        0        9
@@ -186,7 +190,7 @@ citeu_dois <- dat2 %>%
   group_by(doi) %>% 
   summarise(
     diff = max(citeulike) - min(citeulike)
-  ) %>% 
+    ) %>% 
   filter(diff > 10) %>% 
   select(doi)
 
@@ -209,7 +213,7 @@ mendeley_dois <-  dat2 %>%
   group_by(doi) %>% 
   summarise(
     diff = max(mendeley, na.rm = TRUE) - min(mendeley, na.rm = TRUE)
-  ) %>% 
+    ) %>% 
   filter(diff > 90) %>%
   select(doi)
 
@@ -221,10 +225,25 @@ dat2 %>%
 ```
 
 ```
-## Warning: Removed 1162 rows containing missing values (geom_path).
+## Warning: Removed 1290 rows containing missing values (geom_path).
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-51.png) 
+
+```r
+# Visualize data - without outliers
+outliers <- unique(dat2 %>% filter(mendeley > 5000) %>% select(doi))$doi
+dat2 %>%
+  select(doi, datafrom, mendeley) %>%
+  filter(doi %in% mendeley_dois$doi, !doi %in% outliers) %>% 
+  ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
+```
+
+```
+## Warning: Removed 1288 rows containing missing values (geom_path).
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-52.png) 
 
 ## Across metrics
 
@@ -233,9 +252,15 @@ Compare different metrics across the same DOIs in one time slice
 
 ```r
 # remove last three dates as they don't have counter_pdf or counter_html data
-dat2 %>% 
+norecent_counter <- dat2 %>% 
   select(doi, datafrom, contains('counter')) %>% 
-  filter(!as.character(datafrom) %in% c('2014-06-10','2014-07-10',"2014-08-10")) %>%
+  filter(!as.character(datafrom) %in% c('2014-06-10','2014-07-10',"2014-08-10","2014-09-10"))
+```
+
+
+
+```r
+norecent_counter %>% 
   ggplot(aes(log10(counter_html+1), log10(counter_pdf+1))) + geom_point() + facet_wrap(~ datafrom)
 ```
 
@@ -243,4 +268,32 @@ dat2 %>%
 ## Warning: Removed 4 rows containing missing values (geom_point).
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+
+Do slopes through time differ?
+
+
+```r
+# remove last three dates as they don't have counter_pdf or counter_html data
+# calculate slopes, define function to get slope and confidence interval first
+get_coef <- function(x){
+  tmp <- lm(counter_pdf ~ counter_html, data = x)
+  df <- data.frame(datafrom=x$datafrom[1], slope=coefficients(tmp)[['counter_html']], t(confint(tmp)[2,]), stringsAsFactors = FALSE)
+  names(df)[3:4] <- c('low','high')
+  df
+  }
+
+res <- norecent_counter %>% 
+  group_by(datafrom) %>%
+  do(out = get_coef(.))
+df <- res$out %>% rbind_all
+
+df %>%
+  ggplot(aes(datafrom, slope)) + 
+  geom_point(aes(size=4)) + 
+  theme_grey(20) + 
+  theme(legend.position="none") + 
+  labs(y="Slope of html to pdf views\n")
+```
+
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
