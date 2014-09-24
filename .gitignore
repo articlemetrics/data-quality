@@ -3,3 +3,4 @@
 .Rhistory
 packrat/lib*/
 cache
+.httr-oauth
