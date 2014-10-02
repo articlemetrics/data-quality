@@ -90,3 +90,8 @@ htmlpdfr <- function(x, y){
   y <- ifelse(y == 0, 1, y)
   x/y
 }
+
+rbind_all_named <- function(dat){
+  tmp <- Map(function(x, y){ x$doi <- y; x }, dat, names(dat))
+  rbind_all(tmp)
+}

@@ -19,7 +19,7 @@ unlink("alertssetup.R")
 #### get data cached for three impt alert classes
 
 ```{r eval=FALSE}
-classes <- c('HtmlRatioTooHighError','EventCountDecreasingError', 'EventCountIncreasingTooFastError')
+classes <- c('HtmlRatioTooHighError','EventCountDecreasingError','EventCountIncreasingTooFastError')
 res <- lapply(classes, alerts_by_class, limit=1000)
 (resdf <- tbl_df(rbind_all(res)))
 ```
@@ -45,6 +45,13 @@ toinspect <- res[1:num_get,] %>% select(-class)
 (dois <- toinspect$article)
 ```
 
+Browse to an article
+
+```{r eval=FALSE}
+browseURL(sprintf("http://alm.plos.org/articles/info:doi/%s", res$article[2]))
+```
+
+
 Get ALM events data and merge alerts data to it
 
 ```{r}
@@ -55,7 +62,7 @@ ggplot elements to reuse
 
 ```{r}
 gg <- function(){
-  list(geom_line(size = 2),
+  list(geom_line(size = 2, alpha = 0.6),
        geom_vline(aes(xintercept=as.numeric(create_date)), linetype="longdash"),
        ggtitle("HtmlRatioTooHighError - Top ten highest HTML/PDF ratio articles\n"),
        facet_wrap(~ article, ncol = 2, scales = "free"),

@@ -1,42 +1,121 @@
-#### Exploring Mendeley data
+## Exploring Mendeley data
 
-Setup
+### Setup
 
 > change directory to data-quality/alerts/
 
-```{r child='alertssetup.Rmd', eval=FALSE}
+```{r child='alertssetup.Rmd'}
+# setwd("alerts")
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")
 ```
 
-Get data
+### Get data
 
-```{r alertsdata}
-(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=10000L))
+```{r alertsdata, cache=TRUE}
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
 ```
 
-Data cleaning
+#### Data cleaning
 
-remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code
+> remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code & remove dois that don't have `journal.`
 
-```{r}
+```{r alertsclean}
 annot <- res %>% filter(grepl('annotation', article)) %>% select(article)
-(res <- res %>% filter(!article %in% annot$doi))
+(res <- res %>% filter(!article %in% annot$article))
+(res <- res %>% filter(grepl('journal', article)))
+res <- res %>% 
+  rename(doi = article, alert_class = class, alert_source = source, alert_create_date = create_date, alert_id = id, alert_val = val, alert_from = from, alert_to = to)
+res
 ```
 
-Get detailed alm data
+### alm data
 
-```{r almdata}
-dat <- alm_ids(res$article, source = "mendeley", info = "detail")
+```{r almdata, cache=TRUE}
+dat <- alm_ids(res$doi, source = c("mendeley","counter"), info = "detail")
+```
+
+Clean alm data
+
+```{r almdata_clean}
 (info <- rbind_all(lapply(dat$data, "[[", "info")))
-(totals <- ldply(dat$data, function(x) x$totals[,-1]))
+totals <- ldply(dat$data, function(x){ 
+  x <- x$totals[,-1]
+  x$readers[1] <- x$readers[2]
+  x[-2,]
+})
+(totals_df <- tbl_df(totals))
+names(totals_df)[[1]] <- "doi"
+totals_df <- totals_df %>%
+  select(doi, pdf, html, readers, total)
 ```
 
-Get detailed events data
+### events data
 
-```{r eventsdata}
-events <- alm_events(res$article[1:5], source = "mendeley")
+```{r eventsdata, cache=TRUE}
+events <- alm_events(res$doi, source = "mendeley")
 ```
 
+Clean events data
 
+```{r events_clean}
+# remove records that have no data
+events <- events[ sapply(events, function(z) is.list(z[[1]])) ]
+# pull out events_url data
+(events_urls <- tbl_df(ldply(lapply(events, function(z) z$mendeley$events_url))))
+names(events_urls)[1] <- "doi"
+# pull out events data
+events_d_tmp <- lapply(events, function(z) z$mendeley$events)
+(events_data <- rbind_all_named(events_d_tmp))
+names(events_data)[1] <- "class"
+events_data <- events_data %>%
+  rename(mendeley_class = class, mendeley_name = name, mendeley_value = value)
+```
+
+### Combine data
+
+```{r combine_data}
+(alldat <- tbl_df(join_all(list(info, totals_df, events_data, res), by = "doi")))
+```
+
+### Visualize
+
+Histogram of alert values
+
+```{r histogram}
+library('ggplot2')
+alldat %>%
+  select(doi, matches("alert")) %>%
+  unique %>%
+  ggplot(aes(alert_val)) + 
+    geom_histogram() + 
+    theme_grey(base_size = 20) +
+    ggtitle("Distribution of EventCountDecreasingError alert values")
+# ggsave("mendeley_histogram.png")
+```
+
+Plot of alert against X
+
+```{r points}
+alldat %>%
+  select(doi, alert_from, alert_to) %>%
+  unique %>% # get unique dois
+  gather(metric, value, -doi) %>% # stack data
+  filter(value < 1000) %>% # remove outliers
+  ggplot(aes(doi, value, color=metric)) +
+    geom_point(size=2, alpha=0.6) +
+    scale_color_manual(values = c('#F9AA8B','#C3E1F1')) +
+    theme_grey(base_size = 18) +
+    theme(axis.ticks.x = element_blank(), 
+          axis.text.x = element_blank(),
+          legend.position = "top") +
+    guides(color = guide_legend(title = ""))
+# ggsave("mendeley_points.png")
+```
+
+### Write report
+
+```{r writereport, eval=FALSE}
+write.csv(alldat, file=sprintf("mendeley_report_%s.csv", Sys.Date()), row.names=FALSE)
+```
