@@ -71,7 +71,7 @@ gg <- function(){
 }
 ```
 
-Plot html and pdf views, just top `r numget`
+Plot html and pdf views, just top `r num_get`
 
 ```{r fig.width=10}
 alldf %>%
@@ -80,7 +80,7 @@ alldf %>%
   ggplot(aes(date, value, color=metric)) + gg()
 ```
 
-The HTML/PDF ratio, just top `r numget`
+The HTML/PDF ratio, just top `r num_get`
 
 ```{r fig.width=10}
 alldf %>%

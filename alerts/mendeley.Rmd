@@ -4,6 +4,12 @@
 
 > change directory to data-quality/alerts/
 
+```{r, eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10
+)
+```
+
 ```{r child='alertssetup.Rmd'}
 # setwd("alerts")
 knitr::purl("alertssetup.Rmd")
