@@ -41,46 +41,44 @@ head(res$data)
 ```
 
 ```
-##      id level              class_name
-## 1 16639 ERROR       Net::HTTPConflict
-## 2 16638 ERROR       Net::HTTPConflict
-## 3 16637  WARN Net::HTTPRequestTimeOut
-## 4 16636  WARN Net::HTTPRequestTimeOut
-## 5 16635 ERROR       Net::HTTPConflict
-## 6 16634 ERROR       Net::HTTPConflict
-##                                                                                                                            message
-## 1               the server responded with status 409 for http://144.76.226.211:5984/alm/pmceurope:10.1210%2Fjc.2013-3874 with rev 
-## 2               the server responded with status 409 for http://144.76.226.211:5984/alm/pmceurope:10.1210%2Fen.2013-2107 with rev 
-## 3          request timed out for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1201%2Fb17231-4&idtype=doi
-## 4 request timed out for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1017%2Fs0269889714000052&idtype=doi
-## 5       the server responded with status 409 for http://144.76.226.211:5984/alm/pmceurope:10.1182%2Fblood-2014-04-571091 with rev 
-## 6           the server responded with status 409 for http://144.76.226.211:5984/alm/pmceurope:10.1177%2F2325957413500534 with rev 
+##      id level             class_name
+## 1 48139 ERROR Net::HTTPNotAcceptable
+## 2 48138 ERROR Net::HTTPNotAcceptable
+## 3 48137 ERROR Net::HTTPNotAcceptable
+## 4 48136 ERROR Net::HTTPNotAcceptable
+## 5 48134 ERROR Net::HTTPNotAcceptable
+## 6 48135 ERROR Net::HTTPNotAcceptable
+##                                                                                                                                                       message
+## 1       the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1109%2Ficmtce.2013.6812406&idtype=doi
+## 2       the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1109%2Ficecco.2013.6718268&idtype=doi
+## 3                 the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1201%2Fb15961-67&idtype=doi
+## 4   the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1016%2Fj.actaastro.2012.03.021&idtype=doi
+## 5     the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1158%2F0008-5472.can-12-1597&idtype=doi
+## 6 the server responded with status 406 for http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.7788%2Fboehlau.9783412211387.165&idtype=doi
 ##   status     hostname
-## 1    409 78.46.96.241
-## 2    409 78.46.96.241
-## 3    408 78.46.96.241
-## 4    408 78.46.96.241
-## 5    409 78.46.96.241
-## 6    409 78.46.96.241
-##                                                                                                   target_url
-## 1                                            http://144.76.226.211:5984/alm/pmceurope:10.1210%2Fjc.2013-3874
-## 2                                            http://144.76.226.211:5984/alm/pmceurope:10.1210%2Fen.2013-2107
-## 3          http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1201%2Fb17231-4&idtype=doi
-## 4 http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1017%2Fs0269889714000052&idtype=doi
-## 5                                    http://144.76.226.211:5984/alm/pmceurope:10.1182%2Fblood-2014-04-571091
-## 6                                        http://144.76.226.211:5984/alm/pmceurope:10.1177%2F2325957413500534
-##      source article unresolved          create_date
-## 1 pmceurope    <NA>       TRUE 2014-09-23T11:38:32Z
-## 2 pmceurope    <NA>       TRUE 2014-09-23T11:37:34Z
-## 3      <NA>    <NA>       TRUE 2014-09-23T11:31:18Z
-## 4      <NA>    <NA>       TRUE 2014-09-23T11:30:53Z
-## 5 pmceurope    <NA>       TRUE 2014-09-23T09:54:16Z
-## 6 pmceurope    <NA>       TRUE 2014-09-23T09:26:49Z
+## 1    406 78.46.96.241
+## 2    406 78.46.96.241
+## 3    406 78.46.96.241
+## 4    406 78.46.96.241
+## 5    406 78.46.96.241
+## 6    406 78.46.96.241
+##                                                                                                           target_url
+## 1       http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1109%2Ficmtce.2013.6812406&idtype=doi
+## 2       http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1109%2Ficecco.2013.6718268&idtype=doi
+## 3                 http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1201%2Fb15961-67&idtype=doi
+## 4   http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1016%2Fj.actaastro.2012.03.021&idtype=doi
+## 5     http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.1158%2F0008-5472.can-12-1597&idtype=doi
+## 6 http://www.pubmedcentral.nih.gov/utils/idconv/v1.0/?format=json&ids=10.7788%2Fboehlau.9783412211387.165&idtype=doi
+##   source article unresolved          create_date
+## 1   <NA>    <NA>       TRUE 2014-10-02T15:57:28Z
+## 2   <NA>    <NA>       TRUE 2014-10-02T15:57:14Z
+## 3   <NA>    <NA>       TRUE 2014-10-02T15:57:04Z
+## 4   <NA>    <NA>       TRUE 2014-10-02T15:56:48Z
+## 5   <NA>    <NA>       TRUE 2014-10-02T15:56:32Z
+## 6   <NA>    <NA>       TRUE 2014-10-02T15:56:32Z
 ```
 
 ### Labs ALM
-
-> Note: as of 2014-09-20 this ALM server is down
 
 
 ```r
@@ -92,34 +90,34 @@ head(res$data)
 ```
 
 ```
-##      id level                class_name
-## 1 75843 FATAL Faraday::ResourceNotFound
-## 2 75840 FATAL Faraday::ResourceNotFound
-## 3 75841 FATAL Faraday::ResourceNotFound
-## 4 75842 FATAL Faraday::ResourceNotFound
-## 5 75837 FATAL Faraday::ResourceNotFound
-## 6 75838 FATAL Faraday::ResourceNotFound
-##                                                  message status
-## 1 DOI 10.1164/ajrccm.156.2.9610043 could not be resolved    404
-## 2     DOI 10.1164/ajrccm.170.2.952 could not be resolved    404
-## 3 DOI 10.1164/ajrccm.158.5.9710009 could not be resolved    404
-## 4 DOI 10.1164/ajrccm.164.3.2005003 could not be resolved    404
-## 5     DOI 10.1164/ajrccm/139.2.422 could not be resolved    404
-## 6            DOI 10.1165/rcmb.f253 could not be resolved    404
-##               hostname                                     target_url
-## 1 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-## 2 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-## 3 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-## 4 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-## 5 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-## 6 labs.crowdometer.org http://www.atsjournals.org/action/cookieabsent
-##   source                      article unresolved          create_date
-## 1     NA 10.1164/ajrccm.156.2.9610043       TRUE 2014-09-23T17:55:12Z
-## 2     NA     10.1164/ajrccm.170.2.952       TRUE 2014-09-23T17:55:11Z
-## 3     NA 10.1164/ajrccm.158.5.9710009       TRUE 2014-09-23T17:55:11Z
-## 4     NA 10.1164/ajrccm.164.3.2005003       TRUE 2014-09-23T17:55:11Z
-## 5     NA     10.1164/ajrccm/139.2.422       TRUE 2014-09-23T17:55:10Z
-## 6     NA            10.1165/rcmb.f253       TRUE 2014-09-23T17:55:10Z
+##       id level      class_name
+## 1 130137 ERROR DelayedJobError
+## 2 130134 ERROR DelayedJobError
+## 3 130135 ERROR DelayedJobError
+## 4 130136 ERROR DelayedJobError
+## 5 130132 ERROR DelayedJobError
+## 6 130133 ERROR DelayedJobError
+##                                                   message status
+## 1 Failure in nature: Nature Blogs is not in working state     NA
+## 2 Failure in nature: Nature Blogs is not in working state     NA
+## 3 Failure in nature: Nature Blogs is not in working state     NA
+## 4 Failure in nature: Nature Blogs is not in working state     NA
+## 5 Failure in nature: Nature Blogs is not in working state     NA
+## 6 Failure in nature: Nature Blogs is not in working state     NA
+##               hostname target_url source article unresolved
+## 1 labs.crowdometer.org         NA nature      NA       TRUE
+## 2 labs.crowdometer.org         NA nature      NA       TRUE
+## 3 labs.crowdometer.org         NA nature      NA       TRUE
+## 4 labs.crowdometer.org         NA nature      NA       TRUE
+## 5 labs.crowdometer.org         NA nature      NA       TRUE
+## 6 labs.crowdometer.org         NA nature      NA       TRUE
+##            create_date
+## 1 2014-10-02T16:53:53Z
+## 2 2014-10-02T16:53:48Z
+## 3 2014-10-02T16:53:48Z
+## 4 2014-10-02T16:53:48Z
+## 5 2014-10-02T16:53:43Z
+## 6 2014-10-02T16:53:43Z
 ```
 
 ### Other sources
