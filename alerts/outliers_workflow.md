@@ -75,7 +75,7 @@ Extract top N articles, get DOIs
 
 
 ```r
-num_get <- 20
+num_get <- 10
 toinspect <- res[1:num_get,] %>% select(-class)
 (dois <- toinspect$article)
 ```
@@ -86,11 +86,6 @@ toinspect <- res[1:num_get,] %>% select(-class)
 ##  [5] "10.1371/journal.pmed.1001493" "10.1371/journal.pone.0090595"
 ##  [7] "10.1371/journal.ppat.1003183" "10.1371/journal.ppat.0020118"
 ##  [9] "10.1371/journal.pbio.1000169" "10.1371/journal.pone.0004276"
-## [11] "10.1371/journal.pone.0084949" "10.1371/journal.pctr.0010015"
-## [13] "10.1371/journal.pone.0076543" "10.1371/journal.pntd.0001985"
-## [15] "10.1371/journal.pbio.1000209" "10.1371/journal.pgen.1000383"
-## [17] "10.1371/journal.pbio.1000088" "10.1371/journal.pone.0042156"
-## [19] "10.1371/journal.ppat.1003081" "10.1371/journal.pgen.1003059"
 ```
 
 Browse to an article
@@ -126,7 +121,7 @@ gg <- function(){
 }
 ```
 
-Plot html and pdf views, just top 20
+Plot html and pdf views, just top 10
 
 
 ```r
@@ -138,7 +133,7 @@ alldf %>%
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
-The HTML/PDF ratio, just top 20
+The HTML/PDF ratio, just top 10
 
 
 ```r
@@ -206,18 +201,11 @@ Are the high value offender DOIs associated with other alm metrics, like social 
 dat <- alm_ids(res$article[1:50], source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
 datdf <- rbind_all(dat$data)
 datdf$article <- rep(res$article[1:50], each = 6)
-```
-
-```
-## Error: replacement has 300 rows, data has 0
-```
-
-```r
 datdf <- inner_join(datdf, res %>% filter(article %in% res$article[1:20]) %>% select(article, val) )
 ```
 
 ```
-## Error: No common variables. Please specify `by` param.
+## Joining by: "article"
 ```
 
 ```r
@@ -230,9 +218,7 @@ datdf %>%
     theme(legend.position="none")
 ```
 
-```
-## Error: At least one layer must contain all variables used for facetting
-```
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 
 Detect spikes/patterns in signals through time

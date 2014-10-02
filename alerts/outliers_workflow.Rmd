@@ -40,7 +40,7 @@ Get data
 Extract top N articles, get DOIs
 
 ```{r}
-num_get <- 20
+num_get <- 10
 toinspect <- res[1:num_get,] %>% select(-class)
 (dois <- toinspect$article)
 ```
