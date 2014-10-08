@@ -1,6 +1,10 @@
 Workflow for detecting and exploring just outliers
 ========================================================
 
+### Date 
+
+Compiled on `r Sys.time()`
+
 ### Setup
 
 > change directory to /data-quality/alerts/
@@ -35,6 +39,9 @@ Get data
 
 ```{r}
 (res <- alerts_by_class(class_name, limit=2000))
+# remove bad data
+res <- res %>%
+  filter(!is.na(article))
 ```
 
 Extract top N articles, get DOIs
@@ -70,6 +77,14 @@ gg <- function(){
        theme_grey(base_size = 14))
 }
 ```
+
+The distribution of html/pdf ratios
+
+```{r ratio_dist}
+res %>%
+  ggplot(aes(x=val)) + geom_histogram()
+```
+
 
 Plot html and pdf views, just top `r num_get`
 
@@ -111,11 +126,11 @@ alm_ids(doi1, info = "detail")
 
 Are the high value offender DOIs associated with other alm metrics, like social media metrics
 
-```{r}
-dat <- alm_ids(res$article[1:50], source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
+```{r fig.width=10}
+dat <- alm_ids(res$article, source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
 datdf <- rbind_all(dat$data)
-datdf$article <- rep(res$article[1:50], each = 6)
-datdf <- inner_join(datdf, res %>% filter(article %in% res$article[1:20]) %>% select(article, val) )
+datdf$article <- rep(res$article, each = 6)
+datdf <- inner_join(datdf, res %>% filter(article %in% res$article) %>% select(article, val) )
 
 datdf %>% 
   ggplot(aes(x=val, y=total)) + 
@@ -129,8 +144,8 @@ datdf %>%
 
 Detect spikes/patterns in signals through time
 
-```{r eval=FALSE}
-'....'
+```{r}
+'not done yet...'
 ```
 
 > based on the above work, identify which articles are deserving of further inspection/flagging - perhaps need to look at log files for IP addresses, etc.

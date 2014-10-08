@@ -28,12 +28,12 @@ unlink("alertssetup.R")
 > remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code & remove dois that don't have `journal.`
 
 ```{r alertsclean}
-annot <- res %>% filter(grepl('annotation', article)) %>% select(article)
-(res <- res %>% filter(!article %in% annot$article))
-(res <- res %>% filter(grepl('journal', article)))
+res <- res %>% filter(source == "mendeley") # mendeley only
+annot <- res %>% filter(grepl('annotation', article)) %>% select(article) 
+res <- res %>% filter(!article %in% annot$article)
+res <- res %>% filter(grepl('journal', article))
 res <- res %>% 
   rename(doi = article, alert_class = class, alert_source = source, alert_create_date = create_date, alert_id = id, alert_val = val, alert_from = from, alert_to = to)
-res
 ```
 
 ### alm data
@@ -45,13 +45,13 @@ dat <- alm_ids(res$doi, source = c("mendeley","counter"), info = "detail")
 Clean alm data
 
 ```{r almdata_clean}
-(info <- rbind_all(lapply(dat$data, "[[", "info")))
+info <- rbind_all(lapply(dat$data, "[[", "info"))
 totals <- ldply(dat$data, function(x){ 
   x <- x$totals[,-1]
   x$readers[1] <- x$readers[2]
   x[-2,]
 })
-(totals_df <- tbl_df(totals))
+totals_df <- tbl_df(totals)
 names(totals_df)[[1]] <- "doi"
 totals_df <- totals_df %>%
   select(doi, pdf, html, readers, total)

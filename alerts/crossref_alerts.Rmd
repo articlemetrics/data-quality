@@ -1,0 +1,33 @@
+Crossref alerts data
+========================================================
+
+### Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd'}
+```
+
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
+### Get data
+
+```{r getdata}
+url <- "http://det.labs.crossref.org/api/v4/alerts"
+user <- getOption('almv4_crossref_user')
+pwd <- getOption('almv4_crossref_pwd')
+res <- alm_alerts(url = url, user = user, pwd = pwd)
+head(res$data)
+```
+
+### Clean data
+
+```{r clean} 
+
+```
+
+### Visualize
