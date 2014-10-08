@@ -1,0 +1,89 @@
+Crossref Report
+========================================================
+
+```{r eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10
+)
+```
+
+### Date 
+
+Compiled on `r Sys.time()`
+
+### Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd'}
+```
+
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
+### Set up variables
+
+```{r variables}
+url <- "http://det.labs.crossref.org/api/v4/alerts"
+user <- getOption('almv4_crossref_user')
+pwd <- getOption('almv4_crossref_pwd')
+```
+
+### Get all data
+
+```{r getdata, cache=TRUE}
+meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
+(resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url))
+```
+
+### Visual exploration of alerts
+
+#### type of alerts
+
+```{r alerttypes}
+library(ggplot2)
+resdf %>%
+  group_by(class_name) %>%
+  summarise(number = length(class_name)) %>%
+  ggplot(aes(reorder(class_name, number), number)) +
+    geom_histogram(stat = "identity") + 
+    coord_flip() +
+    theme_grey(base_size = 20) +
+    labs(x = "Alert", y = "No. Articles")
+```
+
+#### alerts by source
+
+By source alone
+
+```{r bysource}
+resdf %>%
+  group_by(source) %>%
+  summarise(number = length(source)) %>%
+  ggplot(aes(reorder(source, number), number)) +
+    geom_histogram(stat = "identity") + 
+    coord_flip() +
+    theme_grey(base_size = 20) +
+    labs(x = "Source", y = "No. Articles")
+```
+
+source X alert class
+
+```{r sourcebyclass}
+resdf %>%
+  group_by(source, class_name) %>%
+  summarise(number = length(source)) %>%
+  ggplot(aes(reorder(source, number), number)) +
+    geom_histogram(stat = "identity") + 
+#     coord_flip() +
+    theme_grey(base_size = 20) +
+    facet_wrap(~ class_name, scales="free") +
+    labs(x = "Source", y = "No. Articles")
+```
+
