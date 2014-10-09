@@ -49,10 +49,21 @@ Version: 1.17.1
 Hash: bb5fdc266f716b8a289a4f92007d53e3
 Requires: bitops
 
+Package: chron
+Source: CRAN
+Version: 2.3-45
+Hash: 65cf73bf43c26a4578bb251499de38cd
+
 Package: colorspace
 Source: CRAN
 Version: 1.2-4
 Hash: b775bd08a10f968fef582304b7c3ab9c
+
+Package: data.table
+Source: CRAN
+Version: 1.9.4
+Hash: 905b6356d387a3a7e13ef62c4cf6f7e3
+Requires: chron, reshape2
 
 Package: DBI
 Source: CRAN
@@ -258,6 +269,12 @@ Version: 1.4
 Hash: e50809918ebb73dff47de17d36d12975
 Requires: plyr, Rcpp, stringr
 
+Package: rfigshare
+Source: CRAN
+Version: 0.3.6
+Hash: 79df8d5470f64afc91a5e0d0eb83d28d
+Requires: ggplot2, httpuv, httr, plyr, RJSONIO, XML, yaml
+
 Package: RJSONIO
 Source: CRAN
 Version: 1.3-0
@@ -290,6 +307,11 @@ Package: whisker
 Source: CRAN
 Version: 0.3-2
 Hash: 186ab2937fec1694c8a63009a2389c4e
+
+Package: XML
+Source: CRAN
+Version: 3.98-1.1
+Hash: 13746d37588e7083349177d6e8234864
 
 Package: xtable
 Source: CRAN
