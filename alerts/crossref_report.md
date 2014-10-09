@@ -5,7 +5,7 @@ Crossref Report
 
 ### Date 
 
-Compiled on 2014-10-07 19:17:03
+Compiled on 2014-10-08 22:06:38
 
 ### Setup
 
@@ -40,6 +40,7 @@ library('lubridate')
 url <- "http://det.labs.crossref.org/api/v4/alerts"
 user <- getOption('almv4_crossref_user')
 pwd <- getOption('almv4_crossref_pwd')
+cr_v5_key <- getOption('crossrefalmkey')
 ```
 
 ### Get all data
@@ -95,6 +96,8 @@ resdf %>%
 
 By source alone
 
+> NOTE: the NA's are not mistakes, but what is given as the source
+
 
 ```r
 resdf %>%
@@ -116,13 +119,75 @@ source X alert class
 resdf %>%
   group_by(source, class_name) %>%
   summarise(number = length(source)) %>%
-  ggplot(aes(reorder(source, number), number)) +
+  ggplot(aes(reorder(class_name, number), number, fill=source)) +
     geom_histogram(stat = "identity") + 
-#     coord_flip() +
+    coord_flip() +
     theme_grey(base_size = 20) +
-    facet_wrap(~ class_name, scales="free") +
-    labs(x = "Source", y = "No. Articles")
+    labs(x = "Source", y = "No. Articles") +
+    theme(legend.position = "top")
 ```
 
 ![plot of chunk sourcebyclass](figure/sourcebyclass.png) 
 
+Dig into `Net::HTTPForbidden`
+
+
+```r
+library('httr')
+library('jsonlite')
+```
+
+```
+## 
+## Attaching package: 'jsonlite'
+## 
+## The following object is masked from 'package:utils':
+## 
+##     View
+```
+
+```r
+res <- GET('http://det.labs.crossref.org//api/v5/publishers', query=list(api_key=cr_v5_key))
+prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
+pre <- prefixes$prefixes
+names(pre) <- prefixes$name
+```
+
+Define functions
+
+
+```r
+splitdoi <- function(x) strsplit(x, "/")[[1]][[1]]
+match_publisher <- function(x, y){
+  names(y[ sapply(y, function(z) x %in% z) ])
+}
+```
+
+Manipulate data
+
+
+```r
+# subset data
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPForbidden") %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, status, source, create_date, target_url)
+
+# get publishers
+pubs <- dat %>%
+  rowwise %>%
+  do( publisher = match_publisher(.$prefix, pre) )
+
+# join the two data.frame's
+alldf <- tbl_df(cbind(dat, pubs))
+alldf$publisher <- as.character(alldf$publisher)
+unique(alldf$publisher)
+```
+
+```
+## [1] "Wiley-Blackwell"
+```
+
+> Note: How all these `Net::HTTPForbidden` erors are 403 errors, and all from Wiley, trying to get Wikipedia data source
+
+The only alert class with article IDs is `Net::HTTPForbidden`.
