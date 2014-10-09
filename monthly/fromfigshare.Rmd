@@ -1,3 +1,58 @@
 ## Montly data files from Figshare
 
 need to ask Martin about data files on Figshare...then see if we can use `rfigshare` to get those files, then some other scripts to process data, look for patterns, etc. 
+
+### Get `rfigshare`
+
+```{r rfig_install, eval=FALSE}
+install.packages(c("rfigshare","data.table"))
+```
+
+```{r rfig_load}
+library("rfigshare")
+library("data.table")
+library("dplyr")
+library("stringr")
+```
+
+### Search rfigshare
+
+First, authenticate
+
+```{r authenticate}
+fs_auth()
+```
+
+Then, search for the ALM data on Figshare
+
+```{r}
+res <- fs_search(query = "Cumulative PLOS ALM Report")
+sapply(res, "[[", "title")
+```
+
+Download files for each record
+
+```{r download, echo=FALSE, eval=FALSE}
+dir <- "~/alm_from_figshare/"
+dir.create(dir, recursive = TRUE)
+invisible(lapply(sapply(res, "[[", "article_id"), function(x){
+  tmp <- fs_download(x)
+  download.file(tmp, destfile = paste0(dir, x, ".csv"))
+}))
+```
+
+Read in files
+
+```{r}
+files <- list.files(dir, pattern = ".csv", full.names = TRUE)
+read_file <- function(x){
+  tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
+  tmp$datafrom <- as.Date(str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}"), "%Y-%m-%d")
+  tmp
+}
+dat <- lapply(files, read_file)
+alldat <- rbind_all(dat)
+(dat2 <- tbl_df(alldat))
+```
+
+> And proceed from here - will have this as the default option in the monthly reports script once everything is cleared up here.
