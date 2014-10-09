@@ -1,9 +1,9 @@
 Workflow for detecting and exploring just outliers
 ========================================================
 
-### Date
+### Date 
 
-Compiled on 2014-10-07 18:13:34
+Compiled on 2014-10-08 22:09:58
 
 ### Setup
 
@@ -58,19 +58,19 @@ Get data
 ```
 
 ```
-## Source: local data frame [143 x 6]
-##
+## Source: local data frame [156 x 6]
+## 
 ##          id                      article    val          create_date
 ## 1  11313573 10.1371/journal.pone.0090595 1602.0 2014-09-27T08:08:32Z
-## 2  11313611 10.1371/journal.pone.0051213  855.0 2014-09-27T08:08:33Z
-## 3  11313489 10.1371/journal.pone.0010894  783.0 2014-09-27T08:08:32Z
-## 4  11347639 10.1371/journal.pone.0023786  586.0 2014-09-29T08:07:01Z
-## 5  11313547 10.1371/journal.pone.0068330  572.0 2014-09-27T08:08:32Z
-## 6  11313595 10.1371/journal.pmed.1001493  570.7 2014-09-27T08:08:33Z
-## 7  11313569 10.1371/journal.pone.0046740  498.0 2014-09-27T08:08:32Z
-## 8  11313511 10.1371/journal.ppat.1003183  430.0 2014-09-27T08:08:32Z
-## 9  11313477 10.1371/journal.ppat.0020118  407.5 2014-09-27T08:08:32Z
-## 10 11313513 10.1371/journal.pbio.1000169  341.3 2014-09-27T08:08:32Z
+## 2  11669962 10.1371/journal.pbio.0030339 1167.0 2014-10-08T08:13:02Z
+## 3  11313611 10.1371/journal.pone.0051213  855.0 2014-09-27T08:08:33Z
+## 4  11313489 10.1371/journal.pone.0010894  783.0 2014-09-27T08:08:32Z
+## 5  11669970 10.1371/journal.pone.0068330  735.0 2014-10-08T08:13:03Z
+## 6  11347639 10.1371/journal.pone.0023786  586.0 2014-09-29T08:07:01Z
+## 7  11313547 10.1371/journal.pone.0068330  572.0 2014-09-27T08:08:32Z
+## 8  11313595 10.1371/journal.pmed.1001493  570.7 2014-09-27T08:08:33Z
+## 9  11313569 10.1371/journal.pone.0046740  498.0 2014-09-27T08:08:32Z
+## 10 11313511 10.1371/journal.ppat.1003183  430.0 2014-09-27T08:08:32Z
 ## ..      ...                          ...    ...                  ...
 ## Variables not shown: source (chr), class (chr)
 ```
@@ -91,11 +91,11 @@ toinspect <- res[1:num_get,] %>% select(-class)
 ```
 
 ```
-##  [1] "10.1371/journal.pone.0090595" "10.1371/journal.pone.0051213"
-##  [3] "10.1371/journal.pone.0010894" "10.1371/journal.pone.0023786"
-##  [5] "10.1371/journal.pone.0068330" "10.1371/journal.pmed.1001493"
-##  [7] "10.1371/journal.pone.0046740" "10.1371/journal.ppat.1003183"
-##  [9] "10.1371/journal.ppat.0020118" "10.1371/journal.pbio.1000169"
+##  [1] "10.1371/journal.pone.0090595" "10.1371/journal.pbio.0030339"
+##  [3] "10.1371/journal.pone.0051213" "10.1371/journal.pone.0010894"
+##  [5] "10.1371/journal.pone.0068330" "10.1371/journal.pone.0023786"
+##  [7] "10.1371/journal.pone.0068330" "10.1371/journal.pmed.1001493"
+##  [9] "10.1371/journal.pone.0046740" "10.1371/journal.ppat.1003183"
 ```
 
 Browse to an article
@@ -143,7 +143,7 @@ res %>%
 ## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
-![plot of chunk ratio_dist](figure/ratio_dist.png)
+![plot of chunk ratio_dist](figure/ratio_dist.png) 
 
 
 Plot html and pdf views, just top 10
@@ -152,11 +152,11 @@ Plot html and pdf views, just top 10
 ```r
 alldf %>%
   select(-year, -month, -id, -val, -source, -xml_views, -ratio) %>%
-  gather(metric, value, -article, -date, -create_date) %>%
+  gather(metric, value, -article, -date, -create_date) %>% 
   ggplot(aes(date, value, color=metric)) + gg()
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png)
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
 The HTML/PDF ratio, just top 10
 
@@ -167,9 +167,9 @@ alldf %>%
   ggplot(aes(date, ratio)) + gg()
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png)
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
 
-All ratio lines together, all 142
+All ratio lines together, all 155
 
 
 ```r
@@ -181,19 +181,19 @@ All ratio lines together, all 142
 ```
 
 ```
-## Source: local data frame [5,395 x 13]
-##
+## Source: local data frame [5,543 x 13]
+## 
 ##                         article year month pdf_views html_views xml_views
-## 1  10.1371/journal.pone.0106930 2014     9        97       4105        15
-## 2  10.1371/journal.pone.0106930 2014    10        16       1044         0
-## 3  10.1371/journal.pone.0097506 2014     5        70      30640         8
-## 4  10.1371/journal.pone.0097506 2014     6       319      21380        13
-## 5  10.1371/journal.pone.0097506 2014     7        71       7984         1
-## 6  10.1371/journal.pone.0097506 2014     8        29       1699         2
-## 7  10.1371/journal.pone.0097506 2014     9        32        758         1
-## 8  10.1371/journal.pone.0097506 2014    10         9        993         0
-## 9  10.1371/journal.pone.0094215 2014     4      1119      36758        34
-## 10 10.1371/journal.pone.0094215 2014     5       269       5058         5
+## 1  10.1371/journal.pntd.0003196 2014     9        39        436         6
+## 2  10.1371/journal.pntd.0003196 2014    10         5        556         1
+## 3  10.1371/journal.pone.0106930 2014     9        97       4105        15
+## 4  10.1371/journal.pone.0106930 2014     9        97       4105        15
+## 5  10.1371/journal.pone.0106930 2014    10        16       1044         0
+## 6  10.1371/journal.pone.0106930 2014    10        16       1044         0
+## 7  10.1371/journal.pone.0097506 2014     5        70      30640         8
+## 8  10.1371/journal.pone.0097506 2014     6       319      21380        13
+## 9  10.1371/journal.pone.0097506 2014     7        71       7984         1
+## 10 10.1371/journal.pone.0097506 2014     8        29       1699         2
 ## ..                          ...  ...   ...       ...        ...       ...
 ## Variables not shown: id (dbl), val (dbl), create_date (date), source
 ##   (chr), class (chr), date (date), ratio (dbl)
@@ -202,13 +202,13 @@ All ratio lines together, all 142
 ```r
 alldf_alldois %>%
   select(article, date, create_date, ratio) %>%
-  ggplot(aes(date, log10(ratio), group=article)) +
+  ggplot(aes(date, log10(ratio), group=article)) + 
     geom_line() +
     labs(y="", x="") +
     theme_grey(base_size = 14)
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png)
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
 
 Dig in to particular DOIs. This is rather free-form, depends on the metric of interest.
 
@@ -226,24 +226,33 @@ Are the high value offender DOIs associated with other alm metrics, like social 
 dat <- alm_ids(res$article, source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
 datdf <- rbind_all(dat$data)
 datdf$article <- rep(res$article, each = 6)
+```
+
+```
+## Error: replacement has 930 rows, data has 0
+```
+
+```r
 datdf <- inner_join(datdf, res %>% filter(article %in% res$article) %>% select(article, val) )
 ```
 
 ```
-## Joining by: "article"
+## Error: No common variables. Please specify `by` param.
 ```
 
 ```r
-datdf %>%
-  ggplot(aes(x=val, y=total)) +
+datdf %>% 
+  ggplot(aes(x=val, y=total)) + 
     geom_point(aes(size=2)) +
     facet_wrap(~ .id, scales='free') +
     labs(y="", x="") +
     theme_grey(base_size = 18) +
     theme(legend.position="none")
-```x
+```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png)
+```
+## Error: At least one layer must contain all variables used for facetting
+```
 
 
 Detect spikes/patterns in signals through time
