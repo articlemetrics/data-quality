@@ -13,8 +13,8 @@ Version: 0.1.9.99
 GithubRepo: alm
 GithubUsername: ropensci
 GithubRef: dev
-GithubSha1: 3da856ffd45bfbba6aad4c4efc177c296efb1596
-Hash: 3da856ffd45bfbba6aad4c4efc177c296efb1596
+GithubSha1: cb4f28ca75c21b4abadc61b1c98282aea4a205db
+Hash: cb4f28ca75c21b4abadc61b1c98282aea4a205db
 Requires: ggplot2, httr, jsonlite, lubridate, plyr, reshape, reshape2,
     stringr
 
@@ -54,6 +54,11 @@ Source: CRAN
 Version: 1.2-4
 Hash: b775bd08a10f968fef582304b7c3ab9c
 
+Package: DBI
+Source: CRAN
+Version: 0.3.1
+Hash: 3a9e85b26ec3ab570266bccb3f9de055
+
 Package: dichromat
 Source: CRAN
 Version: 2.0-0
@@ -65,10 +70,14 @@ Version: 0.6.4
 Hash: e4bf0e79b15a352510aff0de905d31e2
 
 Package: dplyr
-Source: CRAN
-Version: 0.2
-Hash: 4c509621a9a1d5e070f2e6807f228711
-Requires: assertthat, BH, hflights, Lahman, magrittr, Rcpp
+Source: github
+Version: 0.3
+GithubRepo: dplyr
+GithubUsername: hadley
+GithubRef: master
+GithubSha1: 9c9fcad2edea7ff0baccd574818d5dd345d0feaf
+Hash: 9c9fcad2edea7ff0baccd574818d5dd345d0feaf
+Requires: assertthat, BH, DBI, lazyeval, magrittr, R6, Rcpp
 
 Package: evaluate
 Source: CRAN
@@ -117,7 +126,7 @@ Requires: digest
 Package: httpuv
 Source: CRAN
 Version: 1.3.0
-Hash: 7244bf7093e9c6c1ab23ddab020f197f
+Hash: 156d2cdf8a183360610376b68a5dd435
 Requires: Rcpp
 
 Package: httr
@@ -146,6 +155,15 @@ Package: Lahman
 Source: CRAN
 Version: 3.0-1
 Hash: 01ed6aeccc6eda186d88f2bb2cab37e6
+
+Package: lazyeval
+Source: github
+Version: 0.1.9
+GithubRepo: lazyeval
+GithubUsername: hadley
+GithubRef: master
+GithubSha1: 6dcbee9b434170bb6de79f3c46312d2d5eaea5c1
+Hash: 6dcbee9b434170bb6de79f3c46312d2d5eaea5c1
 
 Package: lubridate
 Source: CRAN
@@ -189,13 +207,18 @@ Hash: 5716097644904b9c1b4be2692de16005
 Package: plyr
 Source: CRAN
 Version: 1.8.1
-Hash: be21bad411e628f810a92212e17b5be7
+Hash: 6a287219196e18bc6261dc11b41b1ca0
 Requires: Rcpp
 
 Package: proto
 Source: CRAN
 Version: 0.3-10
 Hash: 668a9e87cedbdc5f56c396edf1bd2648
+
+Package: R6
+Source: CRAN
+Version: 2.0
+Hash: a7fd0cf10401cde9177f1a685f72d15a
 
 Package: rCharts
 Source: github
@@ -214,8 +237,8 @@ Hash: 6a849b729bec970204ca88b96906adbc
 
 Package: Rcpp
 Source: CRAN
-Version: 0.11.2
-Hash: ef2b1a5e45d1461bd720e4ebbe48e601
+Version: 0.11.3
+Hash: d9cc0a13885961b2d004cf73b0fb68dd
 
 Package: RCurl
 Source: CRAN
@@ -232,7 +255,7 @@ Requires: plyr
 Package: reshape2
 Source: CRAN
 Version: 1.4
-Hash: b210925e978fd52ad5eb0822a353e7ce
+Hash: e50809918ebb73dff47de17d36d12975
 Requires: plyr, Rcpp, stringr
 
 Package: RJSONIO
