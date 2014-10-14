@@ -24,3 +24,6 @@ options(pkpalmkey = "1UwwuvPLZzbYxyrcQ3id")
 
 # Copernicus ALM key
 options(copernicusalmkey = "rQjtMwxs3is76Fduq3za")
+
+# Pensoft ALM key
+options(pensoftalmkey = "84LeZ5xhRQGkSE_Kr7CE")

@@ -8,13 +8,19 @@ other ALM sources
 ```{r child='alertssetup.Rmd'}
 ```
 
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
 ### Credentials
 
 You need to give credentials to get alerts data. Make sure to input your own username and password for `user` and `pwd` variables in your `.Rprofile` file, or pass in to the function call itself. `alm_alerts()` looks for `almv4_user` and `almv4_pwd` by default, but those are meant to go with the main PLOS ALM server at `plos.alm.org`. So you can store your username and password in `.Rrofile`, but just call it in via `getOption()` in your script passin to `alm_alerts()`.
 
 ### Crossref ALM
 
-```{r}
+```{r crossref_alm}
 url <- "http://det.labs.crossref.org/api/v4/alerts"
 user <- getOption('almv4_crossref_user')
 pwd <- getOption('almv4_crossref_pwd')
@@ -24,7 +30,7 @@ head(res$data)
 
 ### Labs ALM
 
-```{r} 
+```{r labs_alm} 
 url <- "http://labs.crowdometer.org/api/v4/alerts"
 user <- getOption('almv4_ploslabs_user')
 pwd <- getOption('almv4_ploslabs_pwd')
@@ -32,6 +38,29 @@ res <- alm_alerts(url = url, user = user, pwd = pwd)
 head(res$data)
 ```
 
+### PKP
+
+> This doesn't seem to be working...
+
+```{r pkp_alm, eval=FALSE}
+url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
+user <- 'myrmecocystus@gmail.com'
+pwd <- getOption('pkpalmkey')
+res <- alm_alerts(url = url, user = user, pwd = pwd)
+head(res$data)
+```
+
+### Pensoft
+
+> This is not for alerts data, just regular ALM data, but just to demonstrate using the Pensoft API.
+
+```{r pensoft_alm}
+url <- 'http://alm.pensoft.net:81/api/v5/articles'
+key <- getOption('pensoftalmkey')
+alm_ids(doi = "10.3897/zookeys.88.807", url = url, key = key)
+```
+
+
 ### Other sources
 
-I'll add exmaples of working with other data sources as they come online. E.g., eLife and PKP are using the ALM app, but are using an older version that doesn't support the alerts data.
+I'll add exmaples of working with other data sources as they come online. 
