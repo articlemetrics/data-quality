@@ -81,13 +81,9 @@ Version: 0.6.4
 Hash: e4bf0e79b15a352510aff0de905d31e2
 
 Package: dplyr
-Source: github
-Version: 0.3
-GithubRepo: dplyr
-GithubUsername: hadley
-GithubRef: master
-GithubSha1: 9c9fcad2edea7ff0baccd574818d5dd345d0feaf
-Hash: 9c9fcad2edea7ff0baccd574818d5dd345d0feaf
+Source: CRAN
+Version: 0.3.0.2
+Hash: 0da1a09895f941f144446a6d57d77095
 Requires: assertthat, BH, DBI, lazyeval, magrittr, R6, Rcpp
 
 Package: evaluate
