@@ -1,25 +1,52 @@
 #### EventCountDecreasingError
 
+
+### Date 
+
+Compiled on `r Sys.time()`
+
+### Setup
+
+> change directory to /data-quality/alerts/
+
+```{r child='alertssetup.Rmd'}
+```
+
+```{r child='alertssetup.Rmd', eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
+### DO it
+
 Get data
 
 ```{r}
-(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=2000))
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
 ```
 
-Extract top N articles, get DOIs
+Remove Mendeley data
 
-```{r}
-get <- 1:10
-toinspect <- res[get,] %>% select(-class)
-(dois <- toinspect$article)
+```{r nomendeley}
+res <- res %>%
+  filter(!source == "mendeley")
+```
+
+Clean out currents urls
+
+```{r alertsclean}
+res <- res %>% filter(grepl('journal', article))
+res <- res %>% 
+  rename(doi = article, alert_class = class, alert_source = source, alert_create_date = create_date, alert_id = id, alert_val = val, alert_from = from, alert_to = to)
 ```
 
 Get ALM events data and merge alerts data to it
 
 ```{r}
-idsdata <- alm_ids(dois, source = unique(res[get,"source"]))
+idsdata <- alm_ids(res$doi)
 
-events <- alm_events(dois, source = unique(res[get,"source"]))
+events <- alm_events(dois, source = c('counter','pmceuropedata','wos','crossref','pmceurope','citeulike','pubmed'))
 foo <- function(x, y){
   tmp <- x$counter$events
   data.frame(article=y, tmp, stringsAsFactors = FALSE)
