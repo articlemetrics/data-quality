@@ -1,0 +1,9 @@
+base
+dplyr
+GGally
+ggplot2
+knitr
+mgcv
+nlme
+rmarkdown
+stringr
