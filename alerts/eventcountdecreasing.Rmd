@@ -1,5 +1,13 @@
-#### EventCountDecreasingError
+EventCountDecreasingError
+========================================================
 
+```{r eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  message = FALSE,
+  warning = FALSE
+)
+```
 
 ### Date 
 
@@ -18,9 +26,7 @@ source("alertssetup.R")
 unlink("alertssetup.R")
 ```
 
-### DO it
-
-Get data
+### Get data
 
 ```{r}
 (res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
