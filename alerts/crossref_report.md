@@ -5,7 +5,7 @@ Crossref Report
 
 ### Date 
 
-Compiled on 2014-10-08 22:06:38
+Compiled on 2014-10-16 10:41:25
 
 ### Setup
 
@@ -55,44 +55,59 @@ res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=u
 ```
 
 ```
-## Source: local data frame [5,292 x 8]
+## Source: local data frame [13,725 x 8]
 ## 
-##       id level                  class_name                      article
-## 1  49206 ERROR ActiveRecord::RecordInvalid                           NA
-## 2  49207 ERROR ActiveRecord::RecordInvalid                           NA
-## 3  49205 ERROR ActiveRecord::RecordInvalid                           NA
-## 4  49204 ERROR ActiveRecord::RecordInvalid                           NA
-## 5  49203 ERROR               StandardError                           NA
-## 6  49202 ERROR               StandardError                           NA
-## 7  49201  WARN Net::HTTPServiceUnavailable 10.1080/1551806x.2014.897883
-## 8  49198  WARN     Net::HTTPRequestTimeOut                           NA
-## 9  49199  WARN     Net::HTTPRequestTimeOut                           NA
-## 10 49200  WARN     Net::HTTPRequestTimeOut                           NA
-## ..   ...   ...                         ...                          ...
-## Variables not shown: status (dbl), source (chr), create_date (chr),
-##   target_url (chr)
+##       id level    class_name article status source          create_date target_url
+## 1  57640 ERROR StandardError      NA     NA     NA 2014-10-14T02:00:13Z         NA
+## 2  57639 ERROR StandardError      NA     NA     NA 2014-10-14T02:00:10Z         NA
+## 3  57638 ERROR StandardError      NA     NA     NA 2014-10-13T22:00:17Z         NA
+## 4  57637 ERROR StandardError      NA     NA     NA 2014-10-13T22:00:17Z         NA
+## 5  57636 ERROR StandardError      NA     NA     NA 2014-10-13T18:00:18Z         NA
+## 6  57635 ERROR StandardError      NA     NA     NA 2014-10-13T18:00:16Z         NA
+## 7  57634 ERROR StandardError      NA     NA     NA 2014-10-13T14:00:16Z         NA
+## 8  57633 ERROR StandardError      NA     NA     NA 2014-10-13T14:00:15Z         NA
+## 9  57632 ERROR StandardError      NA     NA     NA 2014-10-13T10:00:15Z         NA
+## 10 57631 ERROR StandardError      NA     NA     NA 2014-10-13T10:00:15Z         NA
+## ..   ...   ...           ...     ...    ...    ...                  ...        ...
 ```
 
-### Visual exploration of alerts
-
-#### type of alerts
+### Types of errors
 
 
 ```r
-library(ggplot2)
-resdf %>%
+tabl <- resdf %>%
   group_by(class_name) %>%
-  summarise(number = length(class_name)) %>%
-  ggplot(aes(reorder(class_name, number), number)) +
-    geom_histogram(stat = "identity") + 
-    coord_flip() +
-    theme_grey(base_size = 20) +
-    labs(x = "Alert", y = "No. Articles")
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+kable(tabl, format = "markdown")
 ```
 
-![plot of chunk alerttypes](figure/alerttypes.png) 
 
-#### alerts by source
+
+|class_name                              |    n|
+|:---------------------------------------|----:|
+|ActiveRecord::RecordInvalid             | 6916|
+|Net::HTTPForbidden                      | 2260|
+|Net::HTTPServiceUnavailable             | 1153|
+|Faraday::ResourceNotFound               | 1005|
+|Net::HTTPBadGateway                     |  545|
+|Net::HTTPConflict                       |  544|
+|Net::HTTPRequestTimeOut                 |  386|
+|Faraday::ClientError                    |  285|
+|ActiveRecord::StatementInvalid          |  197|
+|Net::HTTPNotAcceptable                  |  166|
+|Net::HTTPInternalServerError            |   79|
+|Net::HTTPUnauthorized                   |   79|
+|StandardError                           |   61|
+|FaradayMiddleware::RedirectLimitReached |   21|
+|Errno::EACCES                           |   17|
+|Net::HTTPBadRequest                     |    6|
+|TooManyErrorsBySourceError              |    3|
+|ActionView::Template::Error             |    2|
+
+
+### Alerts by source
 
 By source alone
 
@@ -102,8 +117,8 @@ By source alone
 ```r
 resdf %>%
   group_by(source) %>%
-  summarise(number = length(source)) %>%
-  ggplot(aes(reorder(source, number), number)) +
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(source, n), n)) +
     geom_histogram(stat = "identity") + 
     coord_flip() +
     theme_grey(base_size = 20) +
@@ -118,8 +133,8 @@ source X alert class
 ```r
 resdf %>%
   group_by(source, class_name) %>%
-  summarise(number = length(source)) %>%
-  ggplot(aes(reorder(class_name, number), number, fill=source)) +
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(class_name, n), n, fill=source)) +
     geom_histogram(stat = "identity") + 
     coord_flip() +
     theme_grey(base_size = 20) +
@@ -129,7 +144,7 @@ resdf %>%
 
 ![plot of chunk sourcebyclass](figure/sourcebyclass.png) 
 
-Dig into `Net::HTTPForbidden`
+### Dig into Net::HTTPForbidden errors
 
 
 ```r
@@ -147,7 +162,7 @@ library('jsonlite')
 ```
 
 ```r
-res <- GET('http://det.labs.crossref.org//api/v5/publishers', query=list(api_key=cr_v5_key))
+res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
 prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
 pre <- prefixes$prefixes
 names(pre) <- prefixes$name
@@ -188,6 +203,4 @@ unique(alldf$publisher)
 ## [1] "Wiley-Blackwell"
 ```
 
-> Note: How all these `Net::HTTPForbidden` erors are 403 errors, and all from Wiley, trying to get Wikipedia data source
-
-The only alert class with article IDs is `Net::HTTPForbidden`.
+> Note: All `Net::HTTPForbidden` are from Wiley, trying to get Wikipedia data source

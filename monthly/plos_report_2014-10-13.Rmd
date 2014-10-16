@@ -131,7 +131,8 @@ Summary by month
 add_yrmonth <- function(x) paste(strsplit(as.character(x), "-")[[1]][1:2], collapse = "-")
 df$yr_month <- sapply(df$publication_date, add_yrmonth)
 
-df3 <- df %>%
+# df3 <- 
+df %>%
   group_by(yr_month) %>%
   summarise(sum = sum(counter, na.rm = TRUE),
             min = min(counter, na.rm = TRUE), 
@@ -141,5 +142,5 @@ df3 <- df %>%
             se = round(sd(counter, na.rm = TRUE) / sqrt(length(counter)), 1),
             no_articles = length(counter))
 
-kable(df3, "markdown")
+# kable(df3, "markdown")
 ```

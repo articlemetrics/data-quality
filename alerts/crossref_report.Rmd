@@ -3,7 +3,9 @@ Crossref Report
 
 ```{r eval=TRUE, echo=FALSE}
 knitr::opts_chunk$set(
-  fig.width=10
+  fig.width=10,
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -35,7 +37,7 @@ cr_v5_key <- getOption('crossrefalmkey')
 
 ### Get all data
 
-```{r getdata, cache=TRUE}
+```{r getdata}
 meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
 res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
 (resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
@@ -43,23 +45,19 @@ res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=u
    select(id, level, class_name, article, status, source, create_date, target_url))
 ```
 
-### Visual exploration of alerts
+### Types of errors
 
-#### type of alerts
-
-```{r alerttypes}
-library(ggplot2)
-resdf %>%
+```{r types, results='asis'}
+tabl <- resdf %>%
   group_by(class_name) %>%
-  summarise(number = length(class_name)) %>%
-  ggplot(aes(reorder(class_name, number), number)) +
-    geom_histogram(stat = "identity") + 
-    coord_flip() +
-    theme_grey(base_size = 20) +
-    labs(x = "Alert", y = "No. Articles")
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+kable(tabl, format = "markdown")
 ```
 
-#### alerts by source
+
+### Alerts by source
 
 By source alone
 
@@ -68,8 +66,8 @@ By source alone
 ```{r bysource}
 resdf %>%
   group_by(source) %>%
-  summarise(number = length(source)) %>%
-  ggplot(aes(reorder(source, number), number)) +
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(source, n), n)) +
     geom_histogram(stat = "identity") + 
     coord_flip() +
     theme_grey(base_size = 20) +
@@ -81,8 +79,8 @@ source X alert class
 ```{r sourcebyclass}
 resdf %>%
   group_by(source, class_name) %>%
-  summarise(number = length(source)) %>%
-  ggplot(aes(reorder(class_name, number), number, fill=source)) +
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(class_name, n), n, fill=source)) +
     geom_histogram(stat = "identity") + 
     coord_flip() +
     theme_grey(base_size = 20) +
@@ -90,12 +88,12 @@ resdf %>%
     theme(legend.position = "top")
 ```
 
-Dig into `Net::HTTPForbidden`
+### Dig into Net::HTTPForbidden errors
 
 ```{r prefixes}
 library('httr')
 library('jsonlite')
-res <- GET('http://det.labs.crossref.org//api/v5/publishers', query=list(api_key=cr_v5_key))
+res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
 prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
 pre <- prefixes$prefixes
 names(pre) <- prefixes$name
@@ -130,6 +128,4 @@ alldf$publisher <- as.character(alldf$publisher)
 unique(alldf$publisher)
 ```
 
-> Note: How all these `Net::HTTPForbidden` erors are 403 errors, and all from Wiley, trying to get Wikipedia data source
-
-The only alert class with article IDs is `Net::HTTPForbidden`.
+> Note: All `Net::HTTPForbidden` are from Wiley, trying to get Wikipedia data source
