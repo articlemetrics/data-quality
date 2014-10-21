@@ -12,6 +12,8 @@ options(almv4_ploslabs_user = "myrmecocystus@gmail.com")
 options(almv4_ploslabs_pwd = "nud1vun2err2il5ond2eed")
 options(almv4_crossref_user = "myrmecocystus@gmail.com")
 options(almv4_crossref_pwd = "glok2ill4ilt7eang6yelm")
+options(almv4_pkp_user = "myrmecocystus@gmail.com")
+options(almv4_pkp_pwd = "LLvsm7GZ6hschaKrEYKADibogytxwLiAG")
 
 # Crowdometer ALM key
 options(crowdometeralmkey = "UKxR1ryDPGMW1XDZ-7Cw")
