@@ -43,34 +43,41 @@ head(res$data)
 ```
 
 ```
-##      id level    class_name
-## 1 57637 ERROR StandardError
-## 2 57638 ERROR StandardError
-## 3 57636 ERROR StandardError
-## 4 57635 ERROR StandardError
-## 5 57634 ERROR StandardError
-## 6 57633 ERROR StandardError
-##                                                                       message
-## 1  Error monitoring workers, only 9 of 25 workers running. Workers restarted.
-## 2  Error monitoring workers, only 9 of 25 workers running. Workers restarted.
-## 3 Error monitoring workers, only 24 of 25 workers running. Workers restarted.
-## 4 Error monitoring workers, only 24 of 25 workers running. Workers restarted.
-## 5 Error monitoring workers, only 24 of 25 workers running. Workers restarted.
-## 6 Error monitoring workers, only 24 of 25 workers running. Workers restarted.
-##   status     hostname target_url source article unresolved
-## 1     NA 78.46.96.241       <NA>     NA      NA       TRUE
-## 2     NA 78.46.96.241       <NA>     NA      NA       TRUE
-## 3     NA 78.46.96.241       <NA>     NA      NA       TRUE
-## 4     NA 78.46.96.241       <NA>     NA      NA       TRUE
-## 5     NA 78.46.96.241       <NA>     NA      NA       TRUE
-## 6     NA 78.46.96.241       <NA>     NA      NA       TRUE
-##            create_date
-## 1 2014-10-13T22:00:17Z
-## 2 2014-10-13T22:00:17Z
-## 3 2014-10-13T18:00:18Z
-## 4 2014-10-13T18:00:16Z
-## 5 2014-10-13T14:00:16Z
-## 6 2014-10-13T14:00:15Z
+##      id level                  class_name
+## 1 57664 ERROR               StandardError
+## 2 57663 ERROR               StandardError
+## 3 57662 ERROR           Net::HTTPConflict
+## 4 57661 ERROR               StandardError
+## 5 57660 ERROR               StandardError
+## 6 57659 ERROR ActiveRecord::RecordInvalid
+##                                                                                                          message
+## 1                                     Error monitoring workers, only 0 of 25 workers running. Workers restarted.
+## 2                                     Error monitoring workers, only 0 of 25 workers running. Workers restarted.
+## 3 the server responded with status 409 for http://144.76.226.211:5984/alm/datacite:10.1021%2Fol202527g with rev 
+## 4                                     Error monitoring workers, only 0 of 25 workers running. Workers restarted.
+## 5                                    Error monitoring workers, only 24 of 25 workers running. Workers restarted.
+## 6                                           Validation failed: Title can't be blank for doi 10.1098/rsos.140249.
+##   status     hostname
+## 1     NA 78.46.96.241
+## 2     NA 78.46.96.241
+## 3    409 78.46.96.241
+## 4     NA 78.46.96.241
+## 5     NA 78.46.96.241
+## 6     NA 78.46.96.241
+##                                                    target_url   source
+## 1                                                        <NA>     <NA>
+## 2                                                        <NA>     <NA>
+## 3 http://144.76.226.211:5984/alm/datacite:10.1021%2Fol202527g datacite
+## 4                                                        <NA>     <NA>
+## 5                                                        <NA>     <NA>
+## 6           http://api.crossref.org/works/10.1098/rsos.140249     <NA>
+##   article unresolved          create_date
+## 1      NA       TRUE 2014-10-21T00:00:09Z
+## 2      NA      FALSE 2014-10-20T00:00:10Z
+## 3      NA      FALSE 2014-10-19T10:28:30Z
+## 4      NA      FALSE 2014-10-19T00:00:09Z
+## 5      NA      FALSE 2014-10-18T07:00:13Z
+## 6      NA       TRUE 2014-10-18T00:05:20Z
 ```
 
 ### Labs ALM
@@ -86,53 +93,82 @@ head(res$data)
 
 ```
 ##       id level                class_name
-## 1 224049 FATAL Faraday::ResourceNotFound
-## 2 224048 ERROR Faraday::ResourceNotFound
-## 3 224047 ERROR             StandardError
-## 4 224046 ERROR           DelayedJobError
-## 5 224045 ERROR           DelayedJobError
-## 6 224044 ERROR           DelayedJobError
-##                                                                                                                                                                                          message
-## 1                                                                                                                                            DOI 10.1365/s35173-011-0163-4 could not be resolved
-## 2 Canonical URL mismatch: http://journals.cambridge.org/abstract_s0075435800046943 for http://journals.cambridge.org/action/displayabstract?frompage=online&aid=8421387&fileid=s0075435800046943
-## 3                                                                                                                     Error monitoring workers, only 3 of 10 workers running. Workers restarted.
-## 4                                                                                                                                    Failure in wordpress: Wordpress.com is not in working state
-## 5                                                                                                                                    Failure in wordpress: Wordpress.com is not in working state
-## 6                                                                                                                                    Failure in wordpress: Wordpress.com is not in working state
+## 1 259365 ERROR     Net::HTTPUnauthorized
+## 2 259364 ERROR Faraday::ResourceNotFound
+## 3 259363 ERROR Faraday::ResourceNotFound
+## 4 259362 ERROR Faraday::ResourceNotFound
+## 5 259361 ERROR Faraday::ResourceNotFound
+## 6 259360 ERROR Faraday::ResourceNotFound
+##                                                                                                                                                                                                          message
+## 1                                                                                                                                     the server responded with status 401 for http://dx.doi.org/10.1038/469447a
+## 2 Canonical URL mismatch: /journal/3/174-essential-considerations-in-the-investigation-of-associations-between-insulin-and-cancer-risk-using-prescription-databases.php for http://ecancer.org/journal/3/174.php
+## 3                                  Canonical URL mismatch: /journal/3/153-oxaliplatin-pre-clinical-perspectives-on-the-mechanisms-of-action-response-and-resistance.php for http://ecancer.org/journal/3/153.php
+## 4                 Canonical URL mismatch: http://journals.cambridge.org/abstract_s088376940001592x for http://journals.cambridge.org/action/displayabstract?frompage=online&aid=7962205&fileid=s088376940001592x
+## 5                 Canonical URL mismatch: http://journals.cambridge.org/abstract_s003871340012113x for http://journals.cambridge.org/action/displayabstract?frompage=online&aid=7683468&fileid=s003871340012113x
+## 6                 Canonical URL mismatch: http://journals.cambridge.org/abstract_s1946427400120779 for http://journals.cambridge.org/action/displayabstract?frompage=online&aid=8021404&fileid=s1946427400120779
 ##   status             hostname
-## 1    404 labs.crowdometer.org
+## 1    401 labs.crowdometer.org
 ## 2    404 labs.crowdometer.org
-## 3     NA labs.crowdometer.org
-## 4     NA labs.crowdometer.org
-## 5     NA labs.crowdometer.org
-## 6     NA labs.crowdometer.org
+## 3    404 labs.crowdometer.org
+## 4    404 labs.crowdometer.org
+## 5    404 labs.crowdometer.org
+## 6    404 labs.crowdometer.org
 ##                                                                                                  target_url
-## 1                                                                                  http://link.springer.com
-## 2 http://journals.cambridge.org/action/displayabstract?frompage=online&aid=8421387&fileid=s0075435800046943
-## 3                                                                                                      <NA>
-## 4                                                                                                      <NA>
-## 5                                                                                                      <NA>
-## 6                                                                                                      <NA>
-##      source                   article unresolved          create_date
-## 1      <NA> 10.1365/s35173-011-0163-4       TRUE 2014-10-14T01:00:40Z
-## 2      <NA>            10.2307/295613       TRUE 2014-10-14T01:00:33Z
-## 3      <NA>                      <NA>       TRUE 2014-10-14T01:00:06Z
-## 4 wordpress                      <NA>       TRUE 2014-10-14T00:44:41Z
-## 5 wordpress                      <NA>       TRUE 2014-10-14T00:44:41Z
-## 6 wordpress                      <NA>       TRUE 2014-10-14T00:44:41Z
+## 1                                                                         http://dx.doi.org/10.1038/469447a
+## 2                                                                      http://ecancer.org/journal/3/174.php
+## 3                                                                      http://ecancer.org/journal/3/153.php
+## 4 http://journals.cambridge.org/action/displayabstract?frompage=online&aid=7962205&fileid=s088376940001592x
+## 5 http://journals.cambridge.org/action/displayabstract?frompage=online&aid=7683468&fileid=s003871340012113x
+## 6 http://journals.cambridge.org/action/displayabstract?frompage=online&aid=8021404&fileid=s1946427400120779
+##   source                   article unresolved          create_date
+## 1   <NA>           10.1038/469447a       TRUE 2014-10-21T17:01:03Z
+## 2   <NA>  10.3332/ecancer.2009.174       TRUE 2014-10-21T17:00:46Z
+## 3   <NA>  10.3332/ecancer.2009.153       TRUE 2014-10-21T17:00:38Z
+## 4   <NA>       10.1557/mrs2004.151       TRUE 2014-10-21T17:00:34Z
+## 5   <NA> 10.1017/s003871340012113x       TRUE 2014-10-21T17:00:33Z
+## 6   <NA>  10.1557/PROC-0900-O12-33       TRUE 2014-10-21T17:00:32Z
 ```
 
 ### PKP
 
-> This doesn't seem to be working...
-
 
 ```r
 url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
-user <- 'myrmecocystus@gmail.com'
-pwd <- getOption('pkpalmkey')
+user <- getOption('almv4_pkp_user')
+pwd <- getOption('almv4_pkp_pwd')
 res <- alm_alerts(url = url, user = user, pwd = pwd)
 head(res$data)
+```
+
+```
+##        id level      class_name
+## 1 1603800 ERROR DelayedJobError
+## 2 1603799 ERROR DelayedJobError
+## 3 1603798 ERROR DelayedJobError
+## 4 1603797 ERROR DelayedJobError
+## 5 1603796 ERROR DelayedJobError
+## 6 1603795 ERROR DelayedJobError
+##                                                                   message
+## 1 Failure in twitter_search: Twitter (Search API) is not in working state
+## 2 Failure in twitter_search: Twitter (Search API) is not in working state
+## 3 Failure in twitter_search: Twitter (Search API) is not in working state
+## 4 Failure in twitter_search: Twitter (Search API) is not in working state
+## 5 Failure in twitter_search: Twitter (Search API) is not in working state
+## 6 Failure in twitter_search: Twitter (Search API) is not in working state
+##   status                  hostname target_url         source article
+## 1     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+## 2     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+## 3     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+## 4     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+## 5     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+## 6     NA http://pkp-alm.lib.sfu.ca         NA twitter_search      NA
+##   unresolved          create_date
+## 1       TRUE 2014-10-21T17:35:27Z
+## 2       TRUE 2014-10-21T17:35:15Z
+## 3       TRUE 2014-10-21T17:35:03Z
+## 4       TRUE 2014-10-21T17:34:47Z
+## 5       TRUE 2014-10-21T17:34:23Z
+## 6       TRUE 2014-10-21T17:33:39Z
 ```
 
 ### Pensoft
