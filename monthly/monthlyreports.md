@@ -1,12 +1,15 @@
 data-quality code
 ========================================================
 
+
+
 ## Install packages 
 
 If the below packages are not installed already, then load package
 
 
 ```r
+options(stringsAsFactors = FALSE)
 # install.packages(c('dplyr','stringr','tidyr'))
 # devtools::install_github("ropensci/alm", ref="alerts")
 library('dplyr')
@@ -23,7 +26,7 @@ PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin if you 
 
 ```r
 dir <- getwd()
-setwd("~/Google Drive/ALM Monthly Reports/")
+setwd("~/Google Drive/ALM Monthly Reports/PLOS")
 files <- list.files(".", pattern = ".csv")
 read_file <- function(x){
   tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
@@ -201,7 +204,7 @@ dat2 %>%
   ggplot(aes(datafrom, citeulike, group=doi)) + geom_line()
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 ### Mendeley data
 
@@ -218,19 +221,11 @@ mendeley_dois <-  dat2 %>%
   select(doi)
 
 # Visualize data
-dat2 %>%
-  select(doi, datafrom, mendeley) %>%
-  filter(doi %in% mendeley_dois$doi) %>% 
-  ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
-```
+# dat2 %>%
+#   select(doi, datafrom, mendeley) %>%
+#   filter(doi %in% mendeley_dois$doi) %>% 
+#   ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
 
-```
-## Warning: Removed 1290 rows containing missing values (geom_path).
-```
-
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-51.png) 
-
-```r
 # Visualize data - without outliers
 outliers <- unique(dat2 %>% filter(mendeley > 5000) %>% select(doi))$doi
 dat2 %>%
@@ -239,24 +234,22 @@ dat2 %>%
   ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
 ```
 
-```
-## Warning: Removed 1288 rows containing missing values (geom_path).
-```
-
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-52.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
 ## Across metrics
 
+### Counter: html vs. pdf views
+
 Compare different metrics across the same DOIs in one time slice
+
+First, remove last three dates as they don't have counter_pdf or counter_html data
 
 
 ```r
-# remove last three dates as they don't have counter_pdf or counter_html data
 norecent_counter <- dat2 %>% 
   select(doi, datafrom, contains('counter')) %>% 
   filter(!as.character(datafrom) %in% c('2014-06-10','2014-07-10',"2014-08-10","2014-09-10"))
 ```
-
 
 
 ```r
@@ -264,11 +257,7 @@ norecent_counter %>%
   ggplot(aes(log10(counter_html+1), log10(counter_pdf+1))) + geom_point() + facet_wrap(~ datafrom)
 ```
 
-```
-## Warning: Removed 4 rows containing missing values (geom_point).
-```
-
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
 Do slopes through time differ?
 
@@ -278,10 +267,10 @@ Do slopes through time differ?
 # calculate slopes, define function to get slope and confidence interval first
 get_coef <- function(x){
   tmp <- lm(counter_pdf ~ counter_html, data = x)
-  df <- data.frame(datafrom=x$datafrom[1], slope=coefficients(tmp)[['counter_html']], t(confint(tmp)[2,]), stringsAsFactors = FALSE)
+  df <- data.frame(datafrom=x$datafrom[1], slope=coefficients(tmp)[['counter_html']], t(confint(tmp)[2,]))
   names(df)[3:4] <- c('low','high')
   df
-  }
+}
 
 res <- norecent_counter %>% 
   group_by(datafrom) %>%
@@ -296,4 +285,4 @@ df %>%
   labs(y="Slope of html to pdf views\n")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 

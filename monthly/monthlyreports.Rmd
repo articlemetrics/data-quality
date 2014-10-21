@@ -1,6 +1,14 @@
 data-quality code
 ========================================================
 
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
 ## Install packages 
 
 If the below packages are not installed already, then load package
@@ -22,7 +30,7 @@ PLOS folks, Monthly reports are in a Google Drive folder, talk to Martin if you 
 
 ```{r cache=TRUE}
 dir <- getwd()
-setwd("~/Google Drive/ALM Monthly Reports/")
+setwd("~/Google Drive/ALM Monthly Reports/PLOS")
 files <- list.files(".", pattern = ".csv")
 read_file <- function(x){
   tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
@@ -92,10 +100,10 @@ mendeley_dois <-  dat2 %>%
   select(doi)
 
 # Visualize data
-dat2 %>%
-  select(doi, datafrom, mendeley) %>%
-  filter(doi %in% mendeley_dois$doi) %>% 
-  ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
+# dat2 %>%
+#   select(doi, datafrom, mendeley) %>%
+#   filter(doi %in% mendeley_dois$doi) %>% 
+#   ggplot(aes(datafrom, mendeley, group=doi)) + geom_line()
 
 # Visualize data - without outliers
 outliers <- unique(dat2 %>% filter(mendeley > 5000) %>% select(doi))$doi
@@ -111,13 +119,13 @@ dat2 %>%
 
 Compare different metrics across the same DOIs in one time slice
 
+First, remove last three dates as they don't have counter_pdf or counter_html data
+
 ```{r cache=TRUE}
-# remove last three dates as they don't have counter_pdf or counter_html data
 norecent_counter <- dat2 %>% 
   select(doi, datafrom, contains('counter')) %>% 
   filter(!as.character(datafrom) %in% c('2014-06-10','2014-07-10',"2014-08-10","2014-09-10"))
 ```
-
 
 ```{r}
 norecent_counter %>% 
