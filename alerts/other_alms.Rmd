@@ -40,14 +40,18 @@ head(res$data)
 
 ### PKP
 
-> This doesn't seem to be working...
+> This doesn't seem to be working...trying to get a fix for this...
 
 ```{r pkp_alm, eval=FALSE}
 url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
 user <- 'myrmecocystus@gmail.com'
-pwd <- getOption('pkpalmkey')
-res <- alm_alerts(url = url, user = user, pwd = pwd)
+key <- getOption('pkpalmkey')
+res <- alm_alerts(url = url, user = user, pwd = key)
 head(res$data)
+
+url <- 'http://pkp-alm.lib.sfu.ca/api/v5/articles'
+key <- getOption('pkpalmkey')
+alm_ids(doi = "10.1080/09687760600836977", url = url, key = key)
 ```
 
 ### Pensoft

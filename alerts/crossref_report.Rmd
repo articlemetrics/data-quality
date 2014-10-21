@@ -129,3 +129,6 @@ unique(alldf$publisher)
 ```
 
 > Note: All `Net::HTTPForbidden` are from Wiley, trying to get Wikipedia data source
+
+* ActiveRecord::RecordInvalid - almost always title
+* 
