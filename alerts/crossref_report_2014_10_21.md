@@ -1,27 +1,39 @@
 Crossref Report
 ========================================================
 
-```{r eval=TRUE, echo=FALSE}
-knitr::opts_chunk$set(
-  fig.width=10,
-  message = FALSE,
-  warning = FALSE,
-  fig.path='figure/'
-)
-```
+
 
 ### Date 
 
-Compiled on `r Sys.time()`
+Compiled on 2014-10-21 19:34:59
 
 ### Setup
 
 > change directory to /data-quality/alerts
 
-```{r child='alertssetup.Rmd'}
+
+Install `alm` if not installed already, then load package
+
+
+```r
+# source functions
+source("helper_fxns.R")
+
+# install.packages('stringr')
+# devtools::install_github("ropensci/alm", ref="dev")
+library('stringr')
+library('alm')
+library('plyr')
+library('dplyr')
+library('tidyr')
+library('assertthat')
+library('ggplot2')
+library('lubridate')
+library('knitr')
 ```
 
-```{r eval=FALSE}
+
+```r
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")
@@ -29,7 +41,8 @@ unlink("alertssetup.R")
 
 ### Set up variables
 
-```{r variables}
+
+```r
 url <- "http://det.labs.crossref.org/api/v4/alerts"
 user <- getOption('almv4_crossref_user')
 pwd <- getOption('almv4_crossref_pwd')
@@ -38,7 +51,8 @@ cr_v5_key <- getOption('crossrefalmkey')
 
 ### Get all data
 
-```{r getdata}
+
+```r
 meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
 res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
 (resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
@@ -46,9 +60,28 @@ res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=u
    select(id, level, class_name, article, status, source, create_date, target_url))
 ```
 
+```
+## Source: local data frame [7,827 x 8]
+## 
+##       id level                  class_name article status   source
+## 1  57666 ERROR               StandardError      NA     NA       NA
+## 2  57665 ERROR               StandardError      NA     NA       NA
+## 3  57664 ERROR               StandardError      NA     NA       NA
+## 4  57663 ERROR               StandardError      NA     NA       NA
+## 5  57662 ERROR           Net::HTTPConflict      NA    409 datacite
+## 6  57661 ERROR               StandardError      NA     NA       NA
+## 7  57660 ERROR               StandardError      NA     NA       NA
+## 8  57659 ERROR ActiveRecord::RecordInvalid      NA     NA       NA
+## 9  57658 ERROR ActiveRecord::RecordInvalid      NA     NA       NA
+## 10 57657 ERROR ActiveRecord::RecordInvalid      NA     NA       NA
+## ..   ...   ...                         ...     ...    ...      ...
+## Variables not shown: create_date (chr), target_url (chr)
+```
+
 ### Types of errors
 
-```{r types, results='asis'}
+
+```r
 tabl <- resdf %>%
   group_by(class_name) %>%
   summarise(n = n()) %>%
@@ -58,13 +91,30 @@ kable(tabl, format = "markdown")
 ```
 
 
+
+|class_name                              |    n|
+|:---------------------------------------|----:|
+|ActiveRecord::RecordInvalid             | 6067|
+|Net::HTTPServiceUnavailable             |  814|
+|Net::HTTPBadGateway                     |  545|
+|Faraday::ClientError                    |  285|
+|Net::HTTPUnauthorized                   |   79|
+|FaradayMiddleware::RedirectLimitReached |   21|
+|StandardError                           |    7|
+|Faraday::ResourceNotFound               |    5|
+|Net::HTTPInternalServerError            |    2|
+|Net::HTTPConflict                       |    1|
+|Net::HTTPRequestTimeOut                 |    1|
+
+
 ### Alerts by source
 
 By source alone
 
 > NOTE: the NA's are not mistakes, but what is given as the source
 
-```{r bysource}
+
+```r
 resdf %>%
   group_by(source) %>%
   summarise(n = n()) %>%
@@ -75,9 +125,12 @@ resdf %>%
     labs(x = "Source", y = "No. Articles")
 ```
 
+![plot of chunk bysource](figure/bysource-1.png) 
+
 source X alert class
 
-```{r sourcebyclass}
+
+```r
 resdf %>%
   group_by(source, class_name) %>%
   summarise(n = n()) %>%
@@ -89,9 +142,12 @@ resdf %>%
     theme(legend.position = "top")
 ```
 
+![plot of chunk sourcebyclass](figure/sourcebyclass-1.png) 
+
 ### Dig into Net::HTTPForbidden errors
 
-```{r prefixes}
+
+```r
 library('httr')
 library('jsonlite')
 res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
@@ -102,7 +158,8 @@ names(pre) <- prefixes$name
 
 Define functions
 
-```{r definefxns}
+
+```r
 splitdoi <- function(x) strsplit(x, "/")[[1]][[1]]
 match_publisher <- function(x, y){
   names(y[ sapply(y, function(z) x %in% z) ])
@@ -111,7 +168,8 @@ match_publisher <- function(x, y){
 
 Manipulate data
 
-```{r manipulate}
+
+```r
 # subset data
 most <- resdf %>%
   group_by(class_name) %>%
@@ -133,4 +191,8 @@ pubs <- dat %>%
 alldf <- tbl_df(cbind(dat, pubs))
 alldf$publisher <- as.character(alldf$publisher)
 unique(alldf$publisher)
+```
+
+```
+## [1] "character(0)"
 ```

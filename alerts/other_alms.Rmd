@@ -1,6 +1,11 @@
 other ALM sources
 ========================================================
 
+```{r, eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  cache.path='cache/'
+)
+```
 
 ### Date 
 

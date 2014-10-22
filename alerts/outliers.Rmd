@@ -1,6 +1,14 @@
 Workflow for detecting and exploring just outliers
 ========================================================
 
+```{r, eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  fig.path='figure/',
+  cache.path='cache/'
+)
+```
+
 ### Date 
 
 Compiled on `r Sys.time()`
