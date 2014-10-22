@@ -6,6 +6,8 @@ This repo holds work on data quality for data from the PLOS altmetrics applicati
 * Monthly reports inspection, see [monthly](monthly/)
 * Alerts inspection, see [alerts](alerts/)
 
+To run reports use make commands. See the Makefile for available commands. E.g. to make the Crossref Report in `alerts/crossref_report.Rmd`, type `make crossref` in your local version of this repo.
+
 ## Monthly reports
 
 Montly reports inspection deals with:
