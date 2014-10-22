@@ -1,4 +1,9 @@
-## Exploring Mendeley data
+Exploring Mendeley data
+========================================================
+
+### Date 
+
+Compiled on `r Sys.time()`
 
 ### Setup
 
@@ -11,7 +16,9 @@ knitr::opts_chunk$set(
 ```
 
 ```{r child='alertssetup.Rmd'}
-# setwd("alerts")
+```
+
+```{r eval=FALSE}
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")
@@ -19,7 +26,7 @@ unlink("alertssetup.R")
 
 ### Get data
 
-```{r alertsdata, cache=TRUE}
+```{r alertsdata}
 (res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
 ```
 
@@ -29,6 +36,12 @@ unlink("alertssetup.R")
 
 ```{r alertsclean}
 res <- res %>% filter(source == "mendeley") # mendeley only
+if(NROW(res) == 0) stop("No Mendeley data")
+```  
+
+Continue, if there is Mendeley data
+
+```{r}
 annot <- res %>% filter(grepl('annotation', article)) %>% select(article) 
 res <- res %>% filter(!article %in% annot$article)
 res <- res %>% filter(grepl('journal', article))
@@ -38,7 +51,7 @@ res <- res %>%
 
 ### alm data
 
-```{r almdata, cache=TRUE}
+```{r almdata}
 dat <- alm_ids(res$doi, source = c("mendeley","counter"), info = "detail")
 ```
 

@@ -1,7 +1,7 @@
 Install `alm` if not installed already, then load package
 
 ```{r message=FALSE}
-# source helper fxns
+# source functions
 source("helper_fxns.R")
 
 # install.packages('stringr')
@@ -14,4 +14,5 @@ library('tidyr')
 library('assertthat')
 library('ggplot2')
 library('lubridate')
+library('knitr')
 ```

@@ -9,18 +9,19 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ### Date 
 
 Compiled on `r Sys.time()`
 
 ### Setup
 
-> change directory to /data-quality/alerts/
+> change directory to /data-quality/alerts
 
 ```{r child='alertssetup.Rmd'}
 ```
 
-```{r child='alertssetup.Rmd', eval=FALSE}
+```{r eval=FALSE}
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")
@@ -77,6 +78,7 @@ alldf <- inner_join(x=alldf, y=idsdata2)
 alldf <- alldf %>% 
     mutate(date = as.Date(sprintf('%s-%s-01', year, month)))
 alldf$alert_create_date <- as.Date(ymd_hms(alldf$alert_create_date))
+alldf
 ```
 
 
@@ -85,7 +87,7 @@ alldf$alert_create_date <- as.Date(ymd_hms(alldf$alert_create_date))
 
 Plot data, top 10 DOIs
 
-```{r fig.width=10}
+```{r fig.width=10, eval=FALSE}
 alldf %>%
   select(-year, -month, -doi, -val, -source) %>%
   gather(metric, value, -article, -date, -create_date) %>%
@@ -107,7 +109,7 @@ alm_ids(doi1, info = "detail")
 
 Are the high value offender DOIs associated with other alm metrics, like social media metrics
 
-```{r}
+```{r eval=FALSE}
 dat <- alm_ids(res$article[1:100], source = c("facebook","twitter"))
 datdf <- rbind_all(dat$data)
 datdf$article <- rep(res$article[1:100], each = 2)

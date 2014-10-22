@@ -1,6 +1,11 @@
 other ALM sources
 ========================================================
 
+
+### Date 
+
+Compiled on `r Sys.time()`
+
 ### Setup
 
 > change directory to /data-quality/alerts/
@@ -8,7 +13,7 @@ other ALM sources
 ```{r child='alertssetup.Rmd'}
 ```
 
-```{r child='alertssetup.Rmd', eval=FALSE}
+```{r eval=FALSE}
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")

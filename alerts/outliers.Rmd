@@ -103,7 +103,7 @@ alldf %>%
   ggplot(aes(date, ratio)) + gg()
 ```
 
-All ratio lines together, all `r NROW(res)`
+All ratio lines together
 
 ```{r fig.width=10}
 (alldf_alldois <- add_events_data(res, res$article))
@@ -126,7 +126,7 @@ alm_ids(doi1, info = "detail")
 
 Are the high value offender DOIs associated with other alm metrics, like social media metrics
 
-```{r fig.width=10}
+```{r fig.width=10, eval=FALSE}
 dat <- alm_ids(res$article, source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
 datdf <- rbind_all(dat$data)
 datdf$article <- rep(res$article, each = 6)
@@ -144,7 +144,7 @@ datdf %>%
 
 Detect spikes/patterns in signals through time
 
-```{r}
+```{r, eval=FALSE}
 'not done yet...'
 ```
 

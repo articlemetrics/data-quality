@@ -15,12 +15,12 @@ Compiled on `r Sys.time()`
 
 ### Setup
 
-> change directory to /data-quality/alerts/
+> change directory to /data-quality/alerts
 
 ```{r child='alertssetup.Rmd'}
 ```
 
-```{r child='alertssetup.Rmd', eval=FALSE}
+```{r eval=FALSE}
 knitr::purl("alertssetup.Rmd")
 source("alertssetup.R")
 unlink("alertssetup.R")
@@ -112,8 +112,14 @@ Manipulate data
 
 ```{r manipulate}
 # subset data
+most <- resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  data.frame(.)
+
 dat <- resdf %>%
-  filter(class_name == "Net::HTTPForbidden") %>%
+  filter(class_name == most[1,"class_name"]) %>%
   mutate(prefix = splitdoi(article)) %>%
   select(id, level, class_name, article, prefix, status, source, create_date, target_url)
 
@@ -127,8 +133,3 @@ alldf <- tbl_df(cbind(dat, pubs))
 alldf$publisher <- as.character(alldf$publisher)
 unique(alldf$publisher)
 ```
-
-> Note: All `Net::HTTPForbidden` are from Wiley, trying to get Wikipedia data source
-
-* ActiveRecord::RecordInvalid - almost always title
-* 
