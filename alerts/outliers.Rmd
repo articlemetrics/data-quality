@@ -4,8 +4,7 @@ Workflow for detecting and exploring just outliers
 ```{r, eval=TRUE, echo=FALSE}
 knitr::opts_chunk$set(
   fig.width=10,
-  fig.path='figure/',
-  cache.path='cache/'
+  fig.path='figure/'
 )
 ```
 
@@ -27,15 +26,6 @@ unlink("alertssetup.R")
 ```
 
 ### Get alerts data by alert class
-
-#### get data cached for three impt alert classes
-
-```{r eval=FALSE}
-classes <- c('HtmlRatioTooHighError','EventCountDecreasingError','EventCountIncreasingTooFastError')
-res <- lapply(classes, alerts_by_class, limit=1000)
-(resdf <- tbl_df(rbind_all(res)))
-```
-
 
 #### By class, change class_name var at top
 
@@ -132,22 +122,69 @@ alm_events(doi1, source = "facebook")
 alm_ids(doi1, info = "detail")
 ```
 
-Are the high value offender DOIs associated with other alm metrics, like social media metrics
+Are the high value offender DOIs associated with other altmetrics, like social media metrics
 
-```{r fig.width=10, eval=FALSE}
-dat <- alm_ids(res$article, source = c("facebook","twitter","mendeley","reddit","scopus","wikipedia"))
-datdf <- rbind_all(dat$data)
-datdf$article <- rep(res$article, each = 6)
-datdf <- inner_join(datdf, res %>% filter(article %in% res$article) %>% select(article, val) )
+Get data from `alm` R package
 
+```{r}
+dat <- alm_ids(res$article)
+```
+
+```{r}
+datdf <- rbind_all(
+  Map(function(x, y) data.frame(article=y, x, stringsAsFactors = FALSE), dat$data, res$article)
+)
+datdf <- inner_join(datdf, res %>% filter(article %in% res$article) %>% select(article, val))
+```
+
+Get html views for each article, join to data
+
+```{r}
+htmls <- datdf %>% filter(.id == "counter") %>% select(article, html) %>% rename(html_views=html)
+datdf <- inner_join(datdf, htmls)
+```
+
+Select a subset of metrics
+
+```{r}
+datdf <- datdf %>%
+  filter(!.id %in% c('citeulike','copernicus','datacite','openedition',
+                     'scienceseeker','counter','reddit'))
+```
+
+Plot the data
+
+```{r fig.width=10}
 datdf %>% 
-  ggplot(aes(x=val, y=total)) + 
+  ggplot(aes(x=log10(html_views+1), y=log10(total+1))) + 
     geom_point(aes(size=2)) +
     facet_wrap(~ .id, scales='free') +
     labs(y="", x="") +
     theme_grey(base_size = 18) +
     theme(legend.position="none")
 ```
+
+Are there combinations of metrics that give stronger prediction of the outlier articles
+
+```{r}
+log10_1 <- function(x) log10(x + 1)
+
+analyze <- datdf %>%
+  filter(.id %in% c("twitter","facebook","mendeley","wikipedia")) %>%
+  select(article, .id, total, html_views) %>%
+  spread(.id, total)
+
+analyze$html_views <- log10_1(analyze$html_views)
+analyze$facebook <- log10_1(analyze$facebook)
+analyze$mendeley <- log10_1(analyze$mendeley)
+analyze$twitter <- log10_1(analyze$twitter)
+analyze$wikipedia <- log10_1(analyze$wikipedia)
+  
+analyze %>%
+  lm(html_views ~ facebook + mendeley + twitter + wikipedia, data = .) %>%
+  summary
+```
+
 
 
 Detect spikes/patterns in signals through time
