@@ -1,0 +1,41 @@
+---
+title: "Summary of ALM monthly reports investigations"
+author: "Scott Chamberlain"
+---
+
+Summary of ALM montly reports investigations
+========================================================
+
+```{r, eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  message=FALSE,
+  warning=FALSE,
+  fig.path='figure/'
+)
+```
+
+### Date 
+
+Created on `r Sys.time()`
+
+### Setup
+
+> change directory to /data-quality/monthly/
+
+```{r}
+options(stringsAsFactors = FALSE)
+# install.packages(c('dplyr','stringr','tidyr'))
+# devtools::install_github("ropensci/alm", ref="alerts")
+library('dplyr')
+library('stringr')
+library('alm')
+library('ggplot2')
+library('tidyr')
+```
+
+### adfafad
+
+```{r}
+print("hello world")
+```

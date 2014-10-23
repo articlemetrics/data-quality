@@ -29,3 +29,11 @@ decreasing:
 mendeley:
 		cd alerts;\
 		Rscript -e 'library(knitr); knit("mendeley.Rmd", "mendeley_$(DATE).md")'
+
+sumalerts:
+		cd alerts;\
+		Rscript -e 'library(rmarkdown); render("summary_alerts.Rmd", c("pdf_document","md_document"))'
+
+summonthly:
+		cd monthly;\
+		Rscript -e 'library(rmarkdown); render("summary_monthly.Rmd", c("pdf_document","md_document"))'
