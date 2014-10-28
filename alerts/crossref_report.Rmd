@@ -134,3 +134,34 @@ alldf <- tbl_df(cbind(dat, pubs))
 alldf$publisher <- as.character(alldf$publisher)
 unique(alldf$publisher)
 ```
+
+
+### Dig into ActiveRecord::RecordInvalid errors
+
+```{r prefixes}
+library('httr')
+library('jsonlite')
+res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
+prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
+pre <- prefixes$prefixes
+names(pre) <- prefixes$name
+```
+
+Manipulate data
+
+```{r manipulate}
+dat <- resdf %>%
+  filter(class_name == "ActiveRecord::RecordInvalid") %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, status, source, create_date, target_url)
+
+# get publishers
+pubs <- dat %>%
+  rowwise %>%
+  do( publisher = match_publisher(.$target_url, pre) )
+
+# join the two data.frame's
+alldf <- tbl_df(cbind(dat, pubs))
+alldf$publisher <- as.character(alldf$publisher)
+unique(alldf$publisher)
+```

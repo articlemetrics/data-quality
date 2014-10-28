@@ -1,6 +1,6 @@
 PackratFormat: 1.4
 PackratVersion: 0.4.1.1
-RVersion: 3.1.1
+RVersion: 3.1.2
 Repos: CRAN=http://cran.r-project.org/,
     BioCsoft=http://bioconductor.org/packages/2.14/bioc,
     BioCann=http://bioconductor.org/packages/2.14/data/annotation,
@@ -15,8 +15,8 @@ GithubUsername: ropensci
 GithubRef: master
 GithubSha1: 1226eb7722a983943e8d440749fd3fb8a78cab19
 Hash: 1226eb7722a983943e8d440749fd3fb8a78cab19
-Requires: ggplot2, httr, jsonlite, lubridate, plyr, reshape, reshape2,
-    stringr
+Requires: RJSONIO, stringr, RCurl, plyr, httr, lubridate, reshape,
+    reshape2, ggplot2
 
 Package: assertthat
 Source: CRAN
@@ -78,7 +78,7 @@ GithubUsername: hadley
 GithubRef: master
 GithubSha1: 937dda97940cc71258c38a5b2f1a03c8d0d73199
 Hash: 937dda97940cc71258c38a5b2f1a03c8d0d73199
-Requires: assertthat, BH, DBI, lazyeval, magrittr, R6, Rcpp
+Requires: assertthat, BH, magrittr, Rcpp, hflights, Lahman
 
 Package: evaluate
 Source: CRAN
@@ -95,24 +95,29 @@ Package: GGally
 Source: CRAN
 Version: 0.4.8
 Hash: 7a4a1d42c1b30ed5a89fec4598f825de
-Requires: ggplot2, gtable, plyr, reshape, stringr
+Requires: gtable, stringr, plyr, reshape, ggplot2
 
 Package: ggplot2
 Source: CRAN
 Version: 1.0.0
 Hash: c8bff66238347472f08b6a35608539ff
-Requires: digest, gtable, plyr, proto, reshape2, scales
+Requires: digest, gtable, proto, plyr, reshape2, scales
 
 Package: ggvis
 Source: CRAN
 Version: 0.3.0.1
 Hash: 2b0d248949ec39b78dd6bd0b75d77086
-Requires: assertthat, dplyr, htmltools, magrittr, RJSONIO, shiny
+Requires: assertthat, digest, magrittr, RJSONIO, dplyr, shiny
 
 Package: gtable
 Source: CRAN
 Version: 0.1.2
 Hash: 0cf4a2b54c02b35dec7e74a8ebed12a0
+
+Package: hflights
+Source: CRAN
+Version: 0.1
+Hash: c695268ebb08ef39e7bf4909e667406c
 
 Package: highr
 Source: CRAN
@@ -139,7 +144,7 @@ GithubUsername: hadley
 GithubRef: master
 GithubSha1: 7ed5bc1167e6454dced51c13e5e2b713c0a74194
 Hash: 7ed5bc1167e6454dced51c13e5e2b713c0a74194
-Requires: digest, jsonlite, mime, R6, RCurl, stringr
+Requires: digest, stringr, RCurl
 
 Package: jsonlite
 Source: CRAN
@@ -150,12 +155,17 @@ Package: knitr
 Source: CRAN
 Version: 1.6
 Hash: 0f6457facba94bccad17a7c67c2f4168
-Requires: digest, evaluate, formatR, highr, markdown, stringr
+Requires: digest, formatR, highr, stringr, markdown, evaluate
 
 Package: labeling
 Source: CRAN
 Version: 0.3
 Hash: 568a992912caf7eeddfb121924154047
+
+Package: Lahman
+Source: CRAN
+Version: 2.0-3
+Hash: 45a202fe77d745af4b76d0683abf5963
 
 Package: lazyeval
 Source: github
@@ -170,7 +180,7 @@ Package: lubridate
 Source: CRAN
 Version: 1.3.3
 Hash: f19612b23b1b15febdf30ee920a6e7df
-Requires: memoise, plyr, stringr
+Requires: stringr, memoise, plyr
 
 Package: magrittr
 Source: CRAN
@@ -229,7 +239,7 @@ GithubUsername: ramnathv
 GithubRef: master
 GithubSha1: 929875d8742c754c33543f3d4331e6d834d7c586
 Hash: 929875d8742c754c33543f3d4331e6d834d7c586
-Requires: plyr, RCurl, RJSONIO, whisker, yaml
+Requires: RJSONIO, whisker, yaml, RCurl, plyr
 
 Package: RColorBrewer
 Source: CRAN
@@ -257,13 +267,13 @@ Package: reshape2
 Source: CRAN
 Version: 1.4
 Hash: e50809918ebb73dff47de17d36d12975
-Requires: plyr, Rcpp, stringr
+Requires: Rcpp, stringr, plyr
 
 Package: rfigshare
 Source: CRAN
 Version: 0.3.6
 Hash: 79df8d5470f64afc91a5e0d0eb83d28d
-Requires: ggplot2, httpuv, httr, plyr, RJSONIO, XML, yaml
+Requires: RJSONIO, XML, yaml, plyr, httr, ggplot2
 
 Package: RJSONIO
 Source: CRAN
@@ -278,19 +288,19 @@ GithubUsername: rstudio
 GithubRef: v0.98.1000
 GithubSha1: 49ec20f9491c6099d9a1447f50e2a42336e12ec7
 Hash: 49ec20f9491c6099d9a1447f50e2a42336e12ec7
-Requires: caTools, htmltools, knitr, yaml
+Requires: yaml, caTools, htmltools, knitr
 
 Package: scales
 Source: CRAN
 Version: 0.2.4
 Hash: b8b1af97bd07818605223060386b00dd
-Requires: dichromat, labeling, munsell, plyr, RColorBrewer
+Requires: dichromat, labeling, RColorBrewer, munsell, plyr
 
 Package: shiny
 Source: CRAN
 Version: 0.10.1
 Hash: abf0d95fb716352103ee6d35b51fffa4
-Requires: caTools, digest, htmltools, httpuv, RJSONIO, xtable
+Requires: digest, RJSONIO, xtable, caTools, htmltools, httpuv
 
 Package: stringr
 Source: CRAN
