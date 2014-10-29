@@ -4,5 +4,4 @@
 packrat/lib*/
 cache
 .httr-oauth
-*.csv
 .Rprofile
