@@ -89,79 +89,182 @@ resdf %>%
     theme(legend.position = "top")
 ```
 
-### Dig into Net::HTTPForbidden errors
 
-```{r prefixes}
+### Get prefixes
+
+Old code...
+
+```{r eval=FALSE, echo=FALSE}
 library('httr')
 library('jsonlite')
-res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
-prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
+tt <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
+prefixes <- fromJSON(content(tt, "text"))$data[,c('name','prefixes')]
 pre <- prefixes$prefixes
 names(pre) <- prefixes$name
 ```
 
-Define functions
+### Define functions
 
 ```{r definefxns}
+library('rcrossref')
+
 splitdoi <- function(x) strsplit(x, "/")[[1]][[1]]
+
 match_publisher <- function(x, y){
   names(y[ sapply(y, function(z) x %in% z) ])
 }
+
+table_summary <- function(x){  
+  rr <- x %>%
+    group_by(publisher) %>%
+    summarise(n = n()) %>%
+    arrange(desc(n))
+  kable(na.omit(rr[1:10,]), format = "markdown")
+}
+
+get_prefixes <- function(x){
+  uniqpre <- na.omit(unique(x))
+  cr_prefixes(uniqpre)$data %>%
+    rowwise %>%
+    mutate(prefix_ = strsplit(sub("http://id.crossref.org/prefix/", "", prefix), "/")[[1]][[1]]) %>%
+    select(-member, -prefix)
+}
 ```
 
-Manipulate data
-
-```{r manipulate}
-# subset data
-most <- resdf %>%
-  group_by(class_name) %>%
-  summarise(n = n()) %>%
-  arrange(desc(n)) %>%
-  data.frame(.)
-
-dat <- resdf %>%
-  filter(class_name == most[1,"class_name"]) %>%
-  mutate(prefix = splitdoi(article)) %>%
-  select(id, level, class_name, article, prefix, status, source, create_date, target_url)
-
-# get publishers
-pubs <- dat %>%
-  rowwise %>%
-  do( publisher = match_publisher(.$prefix, pre) )
-
-# join the two data.frame's
-alldf <- tbl_df(cbind(dat, pubs))
-alldf$publisher <- as.character(alldf$publisher)
-unique(alldf$publisher)
-```
-
-
-### Dig into ActiveRecord::RecordInvalid errors
-
-```{r}
-library('httr')
-library('jsonlite')
-res <- GET('http://det.labs.crossref.org/api/v5/publishers', query=list(api_key=cr_v5_key))
-prefixes <- fromJSON(content(res, "text"))$data[,c('name','prefixes')]
-pre <- prefixes$prefixes
-names(pre) <- prefixes$name
-```
-
-Manipulate data
+### ActiveRecord::RecordInvalid errors
 
 ```{r}
 dat <- resdf %>%
   filter(class_name == "ActiveRecord::RecordInvalid") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = strsplit(sub("http://api.crossref.org/works/", "", target_url), "/")[[1]][[1]])
+
+pre_resdf <- get_prefixes(
+  sapply(dat$target_url, function(x) strsplit(sub("http://api\\.crossref\\.org/works/", "", x), "/")[[1]][[1]], USE.NAMES = FALSE)
+)
+
+activerecord <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(activerecord)
+```
+
+### Net::HTTPBadGateway errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPBadGateway") %>%
+  rowwise %>%
   mutate(prefix = splitdoi(article)) %>%
   select(id, level, class_name, article, prefix, status, source, create_date, target_url)
 
-# get publishers
-pubs <- dat %>%
-  rowwise %>%
-  do( publisher = match_publisher(.$target_url, pre) )
+pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
+net_httpbadgateway <- inner_join(dat, pre_resdf, "prefix") %>%
+  rename(publisher = name)
+table_summary(alldf)
+```
 
-# join the two data.frame's
-alldf <- tbl_df(cbind(dat, pubs))
-alldf$publisher <- as.character(alldf$publisher)
-unique(alldf$publisher)
+### Net::HTTPServiceUnavailable errors
+
+```{r}
+httpserveunavail <- resdf %>% filter(class_name == "Net::HTTPServiceUnavailable")
+```
+
+### Faraday::ClientError errors
+
+```{r}
+faradayclient <- resdf %>% filter(class_name == "Faraday::ClientError")
+```
+
+### Net::HTTPUnauthorized errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPUnauthorized") %>%
+  rowwise %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, status, source, create_date, target_url)
+
+pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
+net_httpunauthorized <- inner_join(dat, pre_resdf, "prefix") %>%
+  rename(publisher = name)
+table_summary(net_httpunauthorized)
+```
+
+### Net::HTTPConflict errors
+
+```{r}
+net_httpconflict <- resdf %>% filter(class_name == "Net::HTTPConflict")
+```
+
+### FaradayMiddleware::RedirectLimitReached errors
+
+```{r}
+dat <- resdf %>% 
+  filter(class_name == "FaradayMiddleware::RedirectLimitReached") %>%
+  rowwise %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, create_date, target_url)
+
+pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
+faraday_middleware <- inner_join(dat, pre_resdf, "prefix") %>%
+  rename(publisher = name)
+table_summary(faraday_middleware)
+```
+
+### Net::HTTPRequestTimeOut errors
+
+```{r}
+dat <- resdf %>% 
+  filter(class_name == "Net::HTTPRequestTimeOut") %>%
+  rowwise %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, create_date, target_url)
+
+pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
+net_httprequesttimeout <- inner_join(dat, pre_resdf, "prefix") %>%
+  rename(publisher = name)
+table_summary(net_httprequesttimeout)
+```
+
+### Faraday::ResourceNotFound errors
+
+```{r}
+faraday_resourcenotfound <- resdf %>% filter(class_name == "Faraday::ResourceNotFound")
+```
+
+### Faraday::ResourceNotFound errors
+
+```{r}
+dat <- resdf %>% 
+  filter(class_name == "Net::HTTPInternalServerError") %>%
+  rowwise %>%
+  mutate(prefix = splitdoi(article)) %>%
+  select(id, level, class_name, article, prefix, create_date, target_url)
+
+pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
+net_httpinternalservererror <- inner_join(dat, pre_resdf, "prefix") %>%
+  rename(publisher = name)
+table_summary(net_httpinternalservererror)
+```
+
+### Write files out
+
+```{r}
+write_csv <- function(x){
+  write.csv(get(x), file=sprintf("crossref_files/%s_error_%s.csv", x, Sys.Date()),
+            row.names=FALSE)
+}
+
+write_csv('activerecord')
+write_csv('net_httpbadgateway')
+write_csv('httpserveunavail')
+write_csv('faradayclient')
+write_csv('net_httpunauthorized')
+write_csv('net_httpconflict')
+write_csv('faraday_middleware')
+write_csv('net_httprequesttimeout')
+write_csv('faraday_resourcenotfound')
+write_csv('net_httpinternalservererror')
 ```
