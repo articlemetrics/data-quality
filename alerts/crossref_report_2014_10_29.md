@@ -5,7 +5,7 @@ Crossref Report
 
 ### Date 
 
-Compiled on 2014-10-28 22:29:58
+Compiled on 2014-10-29 07:27:43
 
 ### Setup
 
@@ -229,12 +229,23 @@ dat <- resdf %>%
 pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
 net_httpbadgateway <- inner_join(dat, pre_resdf, "prefix") %>%
   rename(publisher = name)
-table_summary(alldf)
+table_summary(net_httpbadgateway)
 ```
 
-```
-## Error in eval(expr, envir, enclos): object 'alldf' not found
-```
+
+
+|publisher                                              |   n|
+|:------------------------------------------------------|---:|
+|Springer Science + Business Media                      | 145|
+|Elsevier BV                                            |  57|
+|AIP Publishing                                         |  51|
+|De Gruyter Open Sp. z o.o.                             |  28|
+|American Association for Cancer Research (AACR)        |  25|
+|Japan Society of Applied Physics                       |  24|
+|Walter de Gruyter GmbH                                 |  17|
+|Bohlau Verlag                                          |  13|
+|Institute of Electrical & Electronics Engineers (IEEE) |  13|
+|Hindawi Publishing Corporation                         |  12|
 
 ### Net::HTTPServiceUnavailable errors
 

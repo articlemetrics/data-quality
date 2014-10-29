@@ -162,7 +162,7 @@ dat <- resdf %>%
 pre_resdf <- get_prefixes(dat$prefix) %>% rename(prefix = prefix_)
 net_httpbadgateway <- inner_join(dat, pre_resdf, "prefix") %>%
   rename(publisher = name)
-table_summary(alldf)
+table_summary(net_httpbadgateway)
 ```
 
 ### Net::HTTPServiceUnavailable errors
