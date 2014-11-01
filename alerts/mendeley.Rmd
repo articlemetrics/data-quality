@@ -29,16 +29,20 @@ unlink("alertssetup.R")
 ### Get data
 
 ```{r alertsdata}
-(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
+# (res <- alerts_by_class(class_name='EventCountDecreasingError', limit=10000L))
+mend_records <- plyr::round_any(alm_alerts(source = "mendeley")$meta$total, 50, ceiling)
+pgs <- mend_records/50
+res <- lapply(1:pgs, function(x) alm_alerts(source = "mendeley", page = x)$data)
+res <- tbl_df(do.call(rbind.fill, res))
 ```
 
 #### Data cleaning
 
 > remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code & remove dois that don't have `journal.`
 
-```{r alertsclean}
-res <- res %>% filter(source == "mendeley") # mendeley only
-if(NROW(res) == 0) stop("No Mendeley data")
+```{r alertsclean, eval=FALSE}
+# res <- res %>% filter(source == "mendeley") # mendeley only
+# if(NROW(res) == 0) stop("No Mendeley data")
 ```  
 
 Continue, if there is Mendeley data
