@@ -1,0 +1,227 @@
+PKP Report
+========================================================
+
+```{r eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  message = FALSE,
+  warning = FALSE,
+  fig.path='figure/'
+)
+```
+
+### Date 
+
+Compiled on `r Sys.time()`
+
+### Setup
+
+> change directory to /data-quality/alerts
+
+```{r child='alertssetup.Rmd'}
+```
+
+```{r eval=FALSE}
+knitr::purl("alertssetup.Rmd")
+source("alertssetup.R")
+unlink("alertssetup.R")
+```
+
+### Set up variables
+
+```{r variables}
+url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
+user <- getOption('almv4_pkp_user')
+pwd <- getOption('almv4_pkp_pwd')
+pkp_v5_key <- getOption('pkpalmkey')
+```
+
+### Get all data
+
+```{r getdata}
+meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
+(resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url))
+```
+
+### Types of errors
+
+```{r types, results='asis'}
+tabl <- resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+
+kable(tabl, format = "markdown")
+```
+
+### Alerts by source
+
+By source alone
+
+> NOTE: the NA's are not mistakes, but what is given as the source
+
+```{r bysource}
+resdf %>%
+  group_by(source) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(source, n), n)) +
+    geom_histogram(stat = "identity") + 
+    coord_flip() +
+    theme_grey(base_size = 20) +
+    labs(x = "Source", y = "No. Articles")
+```
+
+source X alert class
+
+```{r sourcebyclass}
+resdf %>%
+  group_by(source, class_name) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(reorder(class_name, n), n, fill=source)) +
+    geom_histogram(stat = "identity") + 
+    coord_flip() +
+    theme_grey(base_size = 20) +
+    labs(x = "Source", y = "No. Articles") +
+    theme(legend.position = "top")
+```
+
+### Define functions
+
+```{r definefxns}
+library('rcrossref')
+
+splitdoi <- function(x) strsplit(x, "/")[[1]][[1]]
+
+match_publisher <- function(x, y){
+  names(y[ sapply(y, function(z) x %in% z) ])
+}
+
+table_summary <- function(x){  
+  rr <- x %>%
+    group_by(publisher) %>%
+    summarise(n = n()) %>%
+    arrange(desc(n))
+  kable(na.omit(rr[1:10,]), format = "markdown")
+}
+
+get_prefixes <- function(x){
+  uniqpre <- na.omit(unique(x))
+  cr_prefixes(uniqpre)$data %>%
+    rowwise %>%
+    mutate(prefix_ = strsplit(sub("http://id.crossref.org/prefix/", "", prefix), "/")[[1]][[1]]) %>%
+    select(-member, -prefix)
+}
+```
+
+### Net::HTTPClient errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPClientError") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = strsplit(article, "/")[[1]][[1]])
+
+pre_resdf <- get_prefixes(dat$prefix_)
+
+nethttpclient <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(nethttpclient)
+```
+
+### Net::HTTPForbidden errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPForbidden") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = strsplit(article, "/")[[1]][[1]])
+
+pre_resdf <- get_prefixes(dat$prefix_)
+
+nethttpforbidden <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(nethttpforbidden)
+```
+
+### Net::HTTPRequestTimeOut errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPRequestTimeOut") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = str_extract(target_url, "10\\.[0-9]+"))
+
+pre_resdf <- get_prefixes(dat$prefix_)
+
+nethttprequesttimeout <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(nethttprequesttimeout)
+```
+
+### ActiveRecord::RecordInvalid errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "ActiveRecord::RecordInvalid") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = strsplit(sub("http://api.crossref.org/works/", "", target_url), "/")[[1]][[1]])
+
+pre_resdf <- get_prefixes(
+  sapply(dat$target_url, function(x) strsplit(sub("http://api\\.crossref\\.org/works/", "", x), "/")[[1]][[1]], USE.NAMES = FALSE)
+)
+
+activerecord <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(activerecord)
+```
+
+### Net::HTTPServiceUnavailable errors
+
+```{r}
+dat <- resdf %>%
+  filter(class_name == "Net::HTTPServiceUnavailable") %>%
+  select(id, level, class_name, article, status, source, create_date, target_url) %>%
+  rowwise %>%
+  mutate(prefix_ = str_extract(target_url, "10\\.[0-9]+"))
+
+pre_resdf <- get_prefixes(dat$prefix_)
+
+nethttserviceun <- inner_join(dat, pre_resdf, "prefix_") %>%
+  select(-article, -status, -source) %>%
+  rename(prefix = prefix_, publisher = name)
+table_summary(nethttserviceun)
+```
+
+### The rest of the errors
+
+```{r}
+other <- 
+  resdf %>% filter(class_name %in% c("Net::HTTPBadGateway","StandardError","TooManyErrorsBySourceError","Net::HTTPNotAcceptable","Faraday::ResourceNotFound","ActionView::MissingTemplate","Faraday::ClientError"))
+```
+
+### Write files out
+
+```{r}
+write_csv <- function(x){
+  write.csv(get(x), file=sprintf("pkp_files/%s_error_%s.csv", x, Sys.Date()),
+            row.names=FALSE)
+}
+
+write_csv('nethttpclient')
+write_csv("nethttpforbidden")
+write_csv("nethttprequesttimeout")
+write_csv('activerecord')
+write_csv('nethttserviceun')
+write_csv('other')
+```

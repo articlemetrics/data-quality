@@ -1,0 +1,7 @@
+"prefix","id","level","class_name","create_date","target_url","publisher"
+"10.1016",1611797,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:59:29Z","http://api.crossref.org/works/10.1016/j.itjm.2010.12.001","Elsevier BV"
+"10.1016",1611796,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:59:14Z","http://api.crossref.org/works/10.1016/j.itjm.2010.09.018","Elsevier BV"
+"10.1016",1611795,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:59:08Z","http://api.crossref.org/works/10.1016/j.itjm.2010.06.001","Elsevier BV"
+"10.1016",1611793,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:58:54Z","http://api.crossref.org/works/10.1016/j.itjm.2010.01.011","Elsevier BV"
+"10.1016",1611794,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:58:54Z","http://api.crossref.org/works/10.1016/j.itjm.2010.01.014","Elsevier BV"
+"10.1016",1611792,"ERROR","ActiveRecord::RecordInvalid","2014-10-31T21:57:33Z","http://api.crossref.org/works/10.1016/j.itjm.2011.03.002","Elsevier BV"
