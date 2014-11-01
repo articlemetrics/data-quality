@@ -14,6 +14,10 @@ crossref:
 		cd alerts;\
 		Rscript -e 'library(knitr); knit("crossref_report.Rmd", "crossref_report_$(DATE).md")'
 
+pkp:
+		cd alerts;\
+		Rscript -e 'library(knitr); knit("pkp_report.Rmd", "pkp_report_$(DATE).md")'
+
 outliers:
 		cd alerts;\
 		Rscript -e 'library(knitr); knit("outliers.Rmd", "outliers_$(DATE).md")'
