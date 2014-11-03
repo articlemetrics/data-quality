@@ -9,12 +9,12 @@ Repos: CRAN=http://cran.r-project.org/,
 
 Package: alm
 Source: github
-Version: 0.3.0.99
+Version: 0.3.1
 GithubRepo: alm
 GithubUsername: ropensci
 GithubRef: master
-GithubSha1: 1226eb7722a983943e8d440749fd3fb8a78cab19
-Hash: 1226eb7722a983943e8d440749fd3fb8a78cab19
+GithubSha1: d2f76eae8684ad947cb05f867c5cfa3566c6c28e
+Hash: d2f76eae8684ad947cb05f867c5cfa3566c6c28e
 Requires: ggplot2, httr, jsonlite, lubridate, plyr, reshape, reshape2,
     stringr
 

@@ -44,4 +44,4 @@ sumalerts:
 
 summonthly:
 		cd monthly;\
-		Rscript -e 'library(rmarkdown); render("summary_monthly.Rmd", c("pdf_document","md_document"))'
+		Rscript -e 'library(knitr); library(rmarkdown); knit("summary_monthly.Rmd", "summary_monthly_$(DATE).md"); render("summary_monthly_$(DATE).md", pdf_document())'

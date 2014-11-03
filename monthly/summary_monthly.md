@@ -1,24 +1,26 @@
-Summary of ALM montly reports investigations
-============================================
+Introduction
+------------
 
-### Date
+Coverage
+--------
 
-Created on 2014-10-22 19:20:04
+-   Data covers 16 months
+-   Data covers 128986 dois
+-   Data covers 43 article-level metrics variables
 
-### Setup
+Totals of metrics across all months and DOIs
 
-> change directory to /data-quality/monthly/
+![](figure/coverage-1.png)
 
-    options(stringsAsFactors = FALSE)
-    # install.packages(c('dplyr','stringr','tidyr'))
-    # devtools::install_github("ropensci/alm", ref="alerts")
-    library('dplyr')
-    library('stringr')
-    library('alm')
-    library('ggplot2')
-    library('tidyr')
+Summary statistics
+------------------
 
-### Stuff
+    print("hello world")
+
+    ## [1] "hello world"
+
+adfafasd
+--------
 
     print("hello world")
 

@@ -6,6 +6,7 @@ knitr::opts_chunk$set(
   fig.width=10,
   message = FALSE,
   warning = FALSE,
+  fig.width = 10,
   fig.path='figure/',
   cache.path='cache/'
 )
@@ -32,14 +33,13 @@ unlink("alertssetup.R")
 ### Get data
 
 ```{r}
-(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=5000L))
+(res <- alerts_by_class(class_name='EventCountDecreasingError', limit=10000L))
 ```
 
 Remove Mendeley data
 
 ```{r nomendeley}
-res <- res %>%
-  filter(!source == "mendeley")
+res <- res %>% filter(!source == "mendeley")
 ```
 
 Clean out PLOS Currents urls
@@ -50,11 +50,22 @@ res <- res %>%
   rename(doi = article, alert_class = class, alert_source = source, alert_create_date = create_date, alert_id = id, alert_val = val, alert_from = from, alert_to = to)
 ```
 
+There can be a lot of data from Crossref, so let's take the top 50 from that source
+
+```{r}
+cr_top50 <- res %>%
+  filter(alert_source == "crossref") %>%
+  arrange(desc(alert_val)) %>%
+  data.frame %>%
+  .[1:50,]
+restop <- tbl_df(rbind(cr_top50, res %>% filter(alert_source != "crossref")))
+```
+
 Get ALM events data and merge alerts data to it
 
 ```{r}
 # altmetrics totals data
-idsdata <- alm_ids(res$doi)
+idsdata <- alm_ids(restop$doi)
 almdat <- function(x, y){
   dat <- x$total
   names(dat) <- x$.id
@@ -63,7 +74,8 @@ almdat <- function(x, y){
 idsdata2 <- rbind_all(Map(almdat, idsdata$data, names(idsdata$data)))
 
 # events data
-events <- alm_events(res$doi)
+events <- lapply(restop$doi, alm_events)
+names(events) <- restop$doi
 # limit events to certain sources of data
 sources <- c("counter", unique(res$alert_source))
 eventsdata <- lapply(events, function(x) x[names(x) %in% sources])
@@ -73,7 +85,7 @@ foo <- function(x, y){
   z <- if(NROW(tmp) == 0) data.frame(year=NA, month=NA, pdf_views=NA, html_views=NA, xml_views=NA) else tmp
   data.frame(doi=y, z, stringsAsFactors = FALSE)
 }
-events_counter <- Map(foo, events, names(events))
+events_counter <- Map(foo, eventsdata, names(eventsdata))
 eventsdf <- tbl_df(rbind_all(events_counter))
 alldf <- inner_join(x=eventsdf, y=res)
 alldf <- inner_join(x=alldf, y=idsdata2)
@@ -83,45 +95,47 @@ alldf$alert_create_date <- as.Date(ymd_hms(alldf$alert_create_date))
 alldf
 ```
 
+WOS data
 
-> done updating above this line, on 2014-10-16
-
-
-Plot data, top 10 DOIs
-
-```{r fig.width=10, eval=FALSE}
+```{r}
 alldf %>%
-  select(-year, -month, -doi, -val, -source) %>%
-  gather(metric, value, -article, -date, -create_date) %>%
-#   arrange() %>%
-  ggplot(aes(date, value, color=metric)) + 
-    geom_line(size = 2, alpha = 0.7) + 
-    geom_vline(aes(xintercept=as.numeric(create_date)), linetype="longdash") +
-    facet_wrap(~ article, ncol = 2, scales = "free") +
-    ggtitle("HtmlRatioTooHighError - Top ten highest HTML/PDF ratio articles\n")
+  filter(alert_source == "wos") %>%
+  ggplot(aes(date, html_views, color=doi)) +
+    geom_line(size = 2, alpha = 0.7)
 ```
 
-Dig in to particular DOIs. This is rather free-form, depends on the metric of interest.
+pmceurope data
 
-```{r eval=FALSE}
-doi1 <- '10.1371/journal.pbio.0040066'
-alm_events(doi1, source = "facebook")
-alm_ids(doi1, info = "detail")
+```{r}
+alldf %>%
+  filter(alert_source == "pmceurope") %>%
+  ggplot(aes(date, html_views, color=doi)) +
+    geom_line(size = 2, alpha = 0.7)
 ```
 
-Are the high value offender DOIs associated with other alm metrics, like social media metrics
+pmceuropedata data
 
-```{r eval=FALSE}
-dat <- alm_ids(res$article[1:100], source = c("facebook","twitter"))
-datdf <- rbind_all(dat$data)
-datdf$article <- rep(res$article[1:100], each = 2)
-datdf <- inner_join(datdf, res %>% filter(article %in% res$article[1:20]) %>% select(article, val) )
+```{r}
+alldf %>%
+  filter(alert_source == "pmceuropedata") %>%
+  ggplot(aes(date, html_views, color=doi)) +
+    geom_line(size = 2, alpha = 0.7)
+```
 
-datdf %>% 
-  ggplot(aes(x=val, y=total)) + 
-    geom_point(aes(size=2)) +
-    facet_wrap(~ .id, scales='free') +
-    labs(y="", x="") +
-    theme_grey(base_size = 18) +
-    theme(legend.position="none")
+pubmed data
+
+```{r}
+alldf %>%
+  filter(alert_source == "pubmed") %>%
+  ggplot(aes(date, html_views, color=doi)) +
+    geom_line(size = 2, alpha = 0.7)
+```
+
+citeulike data
+
+```{r}
+alldf %>%
+  filter(alert_source == "citeulike") %>%
+  ggplot(aes(date, html_views, color=doi)) +
+    geom_line(size = 2, alpha = 0.7)
 ```

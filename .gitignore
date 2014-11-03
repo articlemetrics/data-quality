@@ -5,3 +5,4 @@ packrat/lib*/
 cache
 .httr-oauth
 .Rprofile
+monthly/summary_monthly_cache/
