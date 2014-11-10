@@ -40,7 +40,7 @@ mendeley:
 
 sumalerts:
 		cd alerts;\
-		Rscript -e 'library(rmarkdown); render("summary_alerts.Rmd", c("pdf_document","md_document"))'
+		Rscript -e 'library(knitr); library(rmarkdown); knit("summary_alerts.Rmd", "summary_alerts_$(DATE).md"); render("summary_alerts_$(DATE).md", pdf_document())'
 
 summonthly:
 		cd monthly;\
