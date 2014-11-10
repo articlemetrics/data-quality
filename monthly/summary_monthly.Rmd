@@ -137,12 +137,6 @@ dat3 %>%
 Overview of some altmetrics through time
 
 ```{r stats, echo=FALSE}
-# dat2 %>%
-#   select(doi, twitter, datafrom, pubdate) %>%
-#   group_by(datafrom) %>%
-#   summarise(val_mean = mean(twitter, na.rm = TRUE)) %>%  
-#   ggplot(aes(datafrom, val_mean)) + geom_line() + theme_grey(base_size = 14) 
-
 dat2 %>%
   select(datafrom, crossref, scopus, twitter, counter_html, pmc_html, facebook, mendeley, wikipedia, f1000, figshare, reddit, datacite) %>%
   group_by(datafrom) %>%
