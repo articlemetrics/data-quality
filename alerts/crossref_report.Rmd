@@ -49,14 +49,12 @@ res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=u
 ### Types of errors
 
 ```{r types, results='asis'}
-tabl <- resdf %>%
+resdf %>%
   group_by(class_name) %>%
   summarise(n = n()) %>%
-  arrange(desc(n))
-
-kable(tabl, format = "markdown")
+  arrange(desc(n)) %>% 
+  kable(format = "markdown")
 ```
-
 
 ### Alerts by source
 
@@ -176,6 +174,19 @@ httpserveunavail <- resdf %>% filter(class_name == "Net::HTTPServiceUnavailable"
 ```{r}
 faradayclient <- resdf %>% filter(class_name == "Faraday::ClientError")
 ```
+
+```{r}
+faradayclient$create_date <- ymd_hms(sort(faradayclient$create_date))
+faradayclient %>%
+  mutate(counter = 1) %>%
+  summarise(count = sum(counter))
+  
+  mutate(counter = 1:n()) %>%
+  mutate(count = cumsum(counter))
+ggplot(faradayclient, aes(create_date, )) +
+  geom_line()
+```
+
 
 ### Net::HTTPUnauthorized errors
 

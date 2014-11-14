@@ -1,37 +1,128 @@
----
-title: "Summary of ALM alerts investigations"
-author: "Scott Chamberlain"
----
-
-Summary of ALM alerts investigations
-========================================================
-
 ```{r, eval=TRUE, echo=FALSE}
 knitr::opts_chunk$set(
   fig.width=10,
-  fig.path='figure/'
+  message=FALSE,
+  warning=FALSE,
+  fig.path='figure/',
+  fig.cap = ""
 )
 ```
 
-### Date 
+Summary of ALM alerts
+========================================================
 
-Created on `r Sys.time()`
+__Scott Chamberlain__
+__`r format(Sys.time(), '%d %B, %Y')`__
 
-### Setup
+## Introduction
 
-> change directory to /data-quality/alerts/
+The [Lagotto application](http://alm.plos.org/) collects and provides article-level metrics data for scholarly articles. As part of a data integrity process, various alerts are given from Lagotto that help determine what may be going wrong with the application, data sources used in Lagotto, and any problems with users requesting data from the Lagotto application. Analyzing these alerts is helping to determine what errors are the most common, and what may lie behind errors.
 
-```{r child='alertssetup.Rmd'}
+Scott Chamberlain has been working on an R client to work with Lagotto application data, called `alm`. This R client can also interact with alerts data from Lagotto. 
+
+As other publishers are starting to use Lagotto, the below is a discussion mostly of PLOS data, but includes some discussion of other publishers. 
+
+```{r loadpkgs, echo=FALSE}
+source("helper_fxns.R")
+library('stringr')
+library('alm')
+library('plyr')
+library('dplyr')
+library('tidyr')
+library('assertthat')
+library('ggplot2')
+library('lubridate')
+library('knitr')
+library('httr')
 ```
 
-```{r child='alertssetup.Rmd', eval=FALSE}
-knitr::purl("alertssetup.Rmd")
-source("alertssetup.R")
-unlink("alertssetup.R")
+## How to interpret alerts
+
+```
+|Alert class name                  | Description       |
+|:---------------------------------|:------------------|
+|Net::HTTPUnauthorized             | 401 - authorization likely missing |
+|Net::HTTPForbidden                | xxxxxx |
+|Net::HTTPRequestTimeOut           | 408 - request timeout |
+|Net::HTTPGatewayTimeOut           | xxxxxx |
+|Net::HTTPConflict                 | 409 - Document update conflict |
+|Net::HTTPServiceUnavailable       | 503 - serve is down |
+|Faraday::ResourceNotFound         | 404 - resource not found ||
+|ActiveRecord::RecordInvalid       | title is usually blank, and can't be |
+|Delayed::WorkerTimeout            | xxxxxx |
+|DelayedJobError                   | xxxxxx |
+|TooManyErrorsBySourceError        | xxxxxx |
+|SourceInactiveError               | xxxxxx |
+|TooManyWorkersError               | xxxxxx |
+|EventCountDecreasingError         | Event count decrease too fast, check on it |
+|EventCountIncreasingTooFastError  | Event count increasing too fast, check on it |
+|ApiResponseTooSlowError           | Alert if successful API responses took too long |
+|HtmlRatioTooHighError             | HTML/PDF ratio higher than 50 |
+|ArticleNotUpdatedError            | Alert if articles have not been updated within X days |
+|SourceNotUpdatedError             | xxxxxx |
+|CitationMilestoneAlert            | Alert if an article has been cited the specified number of times |
 ```
 
-### Stuff
+## PLOS
 
-```{r}
-print("hello world")
+PLOS has `r content(GET("http://alm.plos.org/heartbeat"))$articles_count` articles available in their Lagotto instance as of `r Sys.Date()`.
+
+```{r plos, results='asis', echo=FALSE}
+# do a loop here, sleeping in between pages
+meta <- alm_alerts()$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x))
+resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url)
+
+resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>% 
+  kable(format = "markdown")
+```
+
+## Crossref
+
+Crossref has the biggest collection of articles in any Lagotto application, with `r content(GET("http://det.labs.crossref.org/heartbeat"))$articles_count` as of `r Sys.Date()`.
+
+```{r crossref, results='asis', echo=FALSE, cache=TRUE}
+url <- "http://det.labs.crossref.org/api/v4/alerts"
+user <- getOption('almv4_crossref_user')
+pwd <- getOption('almv4_crossref_pwd')
+
+meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
+resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url)
+
+resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  kable(format = "markdown")
+```
+
+
+## PKP
+
+PKP has a growing collection of articles, with `r content(GET("http://pkp-alm.lib.sfu.ca/heartbeat"))$articles_count` as of `r Sys.Date()`.
+
+```{r pkp, results='asis', echo=FALSE, cache=TRUE}
+url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
+user <- getOption('almv4_pkp_user')
+pwd <- getOption('almv4_pkp_pwd')
+
+meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts(page=x, url=url, user=user, pwd=pwd))
+resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url)
+
+resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  kable(format = "markdown")
 ```
