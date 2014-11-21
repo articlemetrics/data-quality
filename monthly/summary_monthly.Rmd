@@ -134,7 +134,7 @@ dat3 %>%
   ggplot(aes(reorder(source, var), var)) + myplot()
 ```
 
-Overview of some altmetrics variables through time
+Overview of some altmetrics variables through time (mean value across articles for each month before plotting)
 
 ```{r stats, echo=FALSE}
 dat2 %>%
@@ -144,33 +144,24 @@ dat2 %>%
   gather(metric, value, -datafrom) %>%
   ggplot(aes(datafrom, value)) + 
     geom_line() + 
-    theme_grey(base_size = 14) + 
+    theme_grey(base_size = 16) + 
     facet_wrap(~ metric, scales = "free") +
     scale_x_date(breaks = date_breaks("7 months"), labels = date_format("%m/%y")) +
     labs(x = "Date", y = "Mean value")
 ```
 
-Distribution of some altmetrics variables
+Distribution of the same subset of altmetrics variables (mean taken across dates for each article before plotting)
 
 ```{r distr, echo=FALSE}
 dat2 %>%
-  select(datafrom, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
-  gather(metric, value, -datafrom) %>%
+  select(doi, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
+  group_by(doi) %>%
+  summarise_each(funs(mean(., na.rm = TRUE))) %>%  
+  gather(metric, value, -doi) %>%
   filter(!is.na(value)) %>%
   ggplot(aes(log10(value))) +
-    geom_density() +
+    geom_histogram() +
     theme_grey(base_size = 14) + 
-    facet_wrap(~ metric, scales = "free")
+    facet_wrap(~ metric, scales = "free") +
+    labs(x = "Value", y = "")
 ```
-
-```{r}
-dat2 %>%
-  select(datafrom, datacite) %>%
-  gather(metric, value, -datafrom) %>%
-  filter(!is.na(value)) %>%
-  ggplot(aes(value)) +
-    geom_density() +
-    theme_grey(base_size = 14) + 
-    facet_wrap(~ metric, scales = "free")
-```
-
