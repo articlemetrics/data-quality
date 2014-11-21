@@ -134,11 +134,11 @@ dat3 %>%
   ggplot(aes(reorder(source, var), var)) + myplot()
 ```
 
-Overview of some altmetrics through time
+Overview of some altmetrics variables through time
 
 ```{r stats, echo=FALSE}
 dat2 %>%
-  select(datafrom, crossref, scopus, twitter, counter_html, pmc_html, facebook, mendeley, wikipedia, f1000, figshare, reddit, datacite) %>%
+  select(datafrom, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
   group_by(datafrom) %>%
   summarise_each(funs(mean(., na.rm = TRUE))) %>%  
   gather(metric, value, -datafrom) %>%
@@ -147,5 +147,30 @@ dat2 %>%
     theme_grey(base_size = 14) + 
     facet_wrap(~ metric, scales = "free") +
     scale_x_date(breaks = date_breaks("7 months"), labels = date_format("%m/%y")) +
-    labs(x = "Date", y = "")
+    labs(x = "Date", y = "Mean value")
 ```
+
+Distribution of some altmetrics variables
+
+```{r distr, echo=FALSE}
+dat2 %>%
+  select(datafrom, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
+  gather(metric, value, -datafrom) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(log10(value))) +
+    geom_density() +
+    theme_grey(base_size = 14) + 
+    facet_wrap(~ metric, scales = "free")
+```
+
+```{r}
+dat2 %>%
+  select(datafrom, datacite) %>%
+  gather(metric, value, -datafrom) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(value)) +
+    geom_density() +
+    theme_grey(base_size = 14) + 
+    facet_wrap(~ metric, scales = "free")
+```
+

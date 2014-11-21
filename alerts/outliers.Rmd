@@ -3,8 +3,9 @@ Workflow for detecting and exploring just outliers
 
 ```{r, eval=TRUE, echo=FALSE}
 knitr::opts_chunk$set(
-  fig.width=10,
-  fig.path='figure/',
+  fig.width = 10,
+  fig.path = 'figure/',
+  fig.cap = "",
   message = FALSE,
   warning = FALSE
 )
@@ -151,7 +152,8 @@ Select a subset of metrics
 ```{r}
 datdf <- datdf %>%
   filter(!.id %in% c('citeulike','copernicus','datacite','openedition',
-                     'scienceseeker','counter','reddit'))
+                     'scienceseeker','counter','reddit','articlecoveragecurated',
+                     'articlecoverage','nature','f1000'))
 ```
 
 Plot the data
@@ -167,6 +169,8 @@ datdf %>%
 ```
 
 Are there combinations of metrics that give stronger prediction of the outlier articles
+
+> only looking at interactions among variables when there is sufficient sample size
 
 ```{r}
 log10_1 <- function(x) log10(x + 1)
@@ -186,8 +190,6 @@ analyze %>%
   lm(html_views ~ facebook + mendeley + twitter + wikipedia, data = .) %>%
   summary
 ```
-
-
 
 Detect spikes/patterns in signals through time
 
