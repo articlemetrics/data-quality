@@ -10,7 +10,7 @@ date:
 
 alerts: crossref outliers otheralms decreasing mendeley
 
-crossref:
+crossref:	
 		cd alerts;\
 		Rscript -e 'library(knitr); knit("crossref_report.Rmd", "crossref_report_$(DATE).md")'
 
