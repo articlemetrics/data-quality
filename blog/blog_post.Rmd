@@ -1,0 +1,270 @@
+```{r, eval=TRUE, echo=FALSE}
+knitr::opts_chunk$set(
+  fig.width=10,
+  message=FALSE,
+  warning=FALSE,
+  fig.path='figure/',
+  fig.cap = ""
+)
+```
+
+Summary of ALM data quality work
+=============================
+
+Article-level metrics data, like any other data, is subject to errors, inconsistencies, bias, etc. To that end, I've been doing some data quality work on article-level metrics data with PLOS. The goal was to explore data quality issues with article-level metrics data, using specifically the data collected on PLOS articles. 
+
+There were two sets of data: 
+
+* monthly reports - these are spreadsheet dumps basically of summary metrics for each data sources for every article.
+* alerts data - The [Lagotto application](https://github.com/articlemetrics/lagotto/) has an alert system, that produces alerts for many things, and I'll explain some below
+
+
+I'll do a high level summary of the findings from each set of data.
+
+## Monthly reports
+
+A file is created at the end of each month. It holds all DOI's published up to that month, including article level metrics. These files make it easy to analyze data for one particular month, or can be summed together to get a picture of PLOS altmetrics over many months (as I do below). You can find these files [on FigShare](http://figshare.com/articles/search?q=author%3A+PLOS%20ALM).
+
+```{r loadpkgs, echo=FALSE}
+options(stringsAsFactors = FALSE)
+library('dplyr')
+library('stringr')
+library('alm')
+library('ggplot2')
+library('tidyr')
+library('knitr')
+library('scales')
+library('GGally')
+```
+
+```{r readdata, echo=FALSE, cache=TRUE}
+dir <- getwd()
+setwd("~/Google Drive/ALM Monthly Reports/PLOS")
+files <- list.files(".", pattern = ".csv")
+read_file <- function(x){
+  tmp <- read.csv(x, header = TRUE, sep = ",", stringsAsFactors=FALSE)
+  tmp$datafrom <- as.Date(str_extract(x, "[0-9]{4}-[0-9]{2}-[0-9]{2}"), "%Y-%m-%d")
+  tmp
+  }
+dat <- lapply(files, read_file)
+alldat <- rbind_all(dat)
+dat2 <- tbl_df(alldat)
+setwd(dir)
+```
+
+```{r cleandata, echo=FALSE, cache=TRUE}
+# new column with date for each row, drop other pub date columns
+# and move title to end for easier viewing
+dat2 <- dat2 %>%
+   mutate(pubdate = published[1], title2 = title) %>%
+   select(-published, -publication_date, -title)
+
+# remove negative numbers in facebook
+dat2 <- dat2 %>%
+   filter(facebook >= 0)
+
+# remove annotation DOIs - NOTE: if you want these, don't run this next few lines of code
+annot <- dat2 %>% filter(grepl('annotation', doi)) %>% select(doi)
+dat2 <- dat2 %>% 
+   filter(!doi %in% annot$doi)
+```
+
+### Coverage
+
+```{r echo=FALSE}
+dats <- dat2 %>% select(datafrom) %>% distinct(datafrom) %>% data.frame %>% .[,"datafrom"]
+mos <- unname(vapply(as.character(dats), function(x) paste0(strsplit(x, "-")[[1]][1:2], collapse = "-"), ""))
+domos <- function(yr){
+  paste0(yr, '(', paste0(vapply(Filter(function(x) grepl(yr, x), mos), function(y) strsplit(y, "-")[[1]][[2]], ""), collapse = ", "), ')')
+}
+yrs <- unique(unname(vapply(as.character(dats), function(x) strsplit(x, "-")[[1]][[1]], "")))
+mos2 <- paste0(lapply(yrs, domos), collapse = ", ")
+```
+
+The monthly data covers:
+
+* `r n_distinct(dat2$datafrom)` months 
+* Data from: `r mos2`
+* `r n_distinct(dat2$doi)` DOIs
+* `r NCOL(dat2 %>% select(-doi, -datafrom, -pubdate, -title2))` article-level metrics variables
+
+```{r echo=FALSE}
+dates <- sort(unique(dat2$datafrom))
+```
+
+### Summary statistics
+
+Totals of metrics for `r paste0(strsplit(as.character(dates[12]), "-")[[1]][1:2], collapse="-")`, across all DOIs. Newer monthly files are missing some data. Sources are dropped below that have no data, or have a sum or mean of zero.
+
+```{r echo=FALSE}
+# get just last months data
+dat3 <- dat2 %>% filter(datafrom == dates[12]) %>% select(-doi, -datafrom, -pubdate, -title2)
+```
+
+```{r coverage, echo=FALSE}
+sum_nona <- function() sum(as.numeric(.), na.rm = TRUE)
+sumfxn <- function(x){
+  tt <- x %>% data.frame
+  df <- plyr::ldply(tt)
+  df$`V1` <- round(df$`V1`, 0)
+  names(df) <- c('source','var')
+  df %>% filter(!is.na(var), var != 0)
+}
+myplot <- function(){
+  list(
+    geom_bar(stat = "identity", width = 0.5, fill = 'blue'),
+    theme_grey(base_size = 14),
+    scale_y_log10(expand = c(0, 0)),
+    coord_flip(),
+    labs(x="Source")
+  )
+}
+```
+
+__Mean__
+
+more notes...
+
+```{r meanall, echo=FALSE}
+dat3 %>%
+  select(-relativemetric) %>%
+  summarise_each(funs(mean(as.numeric(.), na.rm = TRUE))) %>%
+  sumfxn %>%
+  ggplot(aes(reorder(source, var), var)) + myplot()
+```
+
+__Overview of some altmetrics variables through time (mean value across articles for each month before plotting)__
+
+more notes...
+
+```{r stats, echo=FALSE}
+dat2 %>%
+  select(datafrom, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
+  group_by(datafrom) %>%
+  summarise_each(funs(mean(., na.rm = TRUE))) %>%  
+  gather(metric, value, -datafrom) %>%
+  ggplot(aes(datafrom, value)) + 
+    geom_line() + 
+    theme_grey(base_size = 16) + 
+    facet_wrap(~ metric, scales = "free") +
+    scale_x_date(breaks = date_breaks("7 months"), labels = date_format("%m/%y")) +
+    labs(x = "Date", y = "Mean value")
+```
+
+__Distribution of the same subset of altmetrics variables (mean taken across dates for each article before plotting)__
+
+more notes...
+
+```{r distr, echo=FALSE}
+dat2 %>%
+  select(doi, crossref, scopus, twitter, counter_html, mendeley, figshare, datacite) %>%
+  group_by(doi) %>%
+  summarise_each(funs(mean(., na.rm = TRUE))) %>%  
+  gather(metric, value, -doi) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(log10(value))) +
+    geom_histogram() +
+    theme_grey(base_size = 14) + 
+    facet_wrap(~ metric, scales = "free") +
+    labs(x = "Value", y = "")
+```
+
+### Some patterns
+
+```{r echo=FALSE}
+dat <- read.csv("~/Google Drive/ALM Monthly Reports/alm_report_2014-09-10.csv", header = TRUE, sep = ",", stringsAsFactors=FALSE)
+dat2 <- tbl_df(dat)
+annot <- dat2 %>% filter(grepl('annotation', doi)) %>% select(doi)
+dat2 <- dat2 %>% filter(!doi %in% annot$doi)
+dat2$publication_date <- as.Date(dat2$publication_date)
+dat2 <- dat2 %>% filter(publication_date > "2013-08-30", publication_date < "2014-09-01")
+dat2 <- dat2 %>% filter(grepl("journal.pone", doi))
+df <- dat2 %>% filter(counter < quantile(dat2$counter, probs = c(0.99))[[1]])
+df %>%
+  select(counter, mendeley, crossref, facebook, reddit, twitter, wikipedia) %>%
+  ggpairs(upper = "blank")
+```
+
+## Alerts
+
+The [Lagotto application](http://alm.plos.org/) collects and provides article-level metrics data for scholarly articles. As part of a data integrity process, various alerts are given from Lagotto that help determine what may be going wrong with the application, data sources used in Lagotto, and any problems with users requesting data from the Lagotto application. Analyzing these alerts helps to determine what errors are the most common, and what may lie behind errors.
+
+I've been working on an R client to work with Lagotto application data, called [alm](https://github.com/ropensci/alm). This R client can also interact with alerts data from Lagotto. [Python](https://github.com/articlemetrics/pyalm) and [Ruby](https://github.com/articlemetrics/lagotto-rb) clients are also in the works. _Note that accessing alerts data takes an extra level of permissions_.
+
+As other publishers are starting to use Lagotto, the below is a discussion mostly of PLOS data, but includes some discussion of other publishers. 
+
+```{r echo=FALSE}
+source("../alerts/helper_fxns.R")
+library('stringr')
+library('alm')
+library('plyr')
+library('dplyr')
+library('tidyr')
+library('assertthat')
+library('ggplot2')
+library('lubridate')
+library('knitr')
+library('httr')
+```
+
+### How to interpret alerts (partial list)
+
+|Alert class name                  | Description       |
+|:---------------------------------|:------------------|
+|Net::HTTPUnauthorized             | 401 - authorization likely missing |
+|Net::HTTPRequestTimeOut           | 408 - request timeout |
+|Net::HTTPConflict                 | 409 - Document update conflict |
+|Net::HTTPServiceUnavailable       | 503 - service is down |
+|Faraday::ResourceNotFound         | 404 - resource not found |
+|ActiveRecord::RecordInvalid       | title is usually blank, and can't be |
+|EventCountDecreasingError         | Event count decrease too fast, check on it |
+|EventCountIncreasingTooFastError  | Event count increasing too fast, check on it |
+|ApiResponseTooSlowError           | Alert if successful API responses took too long |
+|HtmlRatioTooHighError             | HTML/PDF ratio higher than 50 |
+|ArticleNotUpdatedError            | Alert if articles have not been updated within X days |
+|CitationMilestoneAlert            | Alert if an article has been cited the specified number of times |
+
+### PLOS
+
+PLOS has `r content(GET("http://alm.plos.org/heartbeat"))$works_count` articles available in their Lagotto instance as of `r Sys.Date()`.
+
+```{r echo=FALSE}
+alm_alerts_try <- plyr::failwith(NULL, alm_alerts)
+```
+
+```{r plos, results='asis', echo=FALSE, cache=TRUE}
+# do a loop here, sleeping in between pages
+meta <- alm_alerts()$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts_try(page=x))
+resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, work, status, source, create_date, target_url)
+
+resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>% 
+  kable(format = "markdown")
+```
+
+### PKP
+
+PKP has a growing collection of articles, with `r content(GET("http://pkp-alm.lib.sfu.ca/heartbeat"))$articles_count` as of `r Sys.Date()`.
+
+```{r pkp, results='asis', echo=FALSE, cache=TRUE}
+url <- 'http://pkp-alm.lib.sfu.ca/api/v4/alerts'
+user <- getOption('almv4_pkp_user')
+pwd <- getOption('almv4_pkp_pwd')
+
+meta <- alm_alerts(url = url, user = user, pwd = pwd)$meta
+res <- lapply(1:meta$total_pages, function(x) alm_alerts_try(page=x, url=url, user=user, pwd=pwd))
+resdf <- do.call(rbind, lapply(res, "[[", "data")) %>% 
+   tbl_df %>% 
+   select(id, level, class_name, article, status, source, create_date, target_url)
+
+resdf %>%
+  group_by(class_name) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  kable(format = "markdown")
+```
